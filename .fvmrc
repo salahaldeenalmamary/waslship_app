@@ -1,0 +1,8 @@
+{
+  "flutter": "3.38.9",
+  "flavors": {
+    "stable": "stable",
+    "master": "master",
+    "project": "3.38.9"
+  }
+}

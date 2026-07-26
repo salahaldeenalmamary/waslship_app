@@ -1,0 +1,17 @@
+targets:
+  $default:
+    builders:
+      retrofit_generator|retrofit:
+        enabled: true
+      source_gen|combining_builder:
+        options:
+          ignore_for_file:
+            - "literal_only_boolean_expressions"
+            - "unnecessary_non_null_assertion"
+            - "unnecessary_string_interpolations"
+      
+# Global options for all building
+global_options:
+  build_runner|build_runner:
+    options:
+      # You can specify other global options for build_runner here if needed
