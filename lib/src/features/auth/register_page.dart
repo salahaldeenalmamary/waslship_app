@@ -1,5 +1,4 @@
 import '../../app/providers/auth/auth_providers.dart';
-import '../../data/network/network.dart';
 import '../../data/repositories/auth/models/auth_dtos.dart';
 import '../../imports/imports.dart';
 
