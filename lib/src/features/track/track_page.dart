@@ -2,8 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import '../widgets/elite_top_bar.dart';
 
-/// Elite track page — animated vertical timeline.
-/// Mirrors the Track screen from waslship-elite.
 @RoutePage()
 class TrackPage extends StatefulWidget {
   const TrackPage({super.key});

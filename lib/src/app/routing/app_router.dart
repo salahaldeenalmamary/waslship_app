@@ -1,8 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:waslship/src/app/routing/global_navigator.dart';
 
-
-
 import 'app_router.gr.dart';
 
 @AutoRouterConfig()
@@ -13,7 +11,9 @@ class AppRouter extends RootStackRouter {
   List<AutoRoute> get routes => [
     // ── Elite Feature ──────────────────────────────────────────────
     // Login is a standalone push before entering the shell
-    AutoRoute(page: LoginRoute.page,   initial: true,),
+    AutoRoute(page: LoginRoute.page, initial: true),
+    AutoRoute(page: RegisterRoute.page),
+    AutoRoute(page: ForgotPasswordRoute.page),
 
     // Shell with 4 bottom-nav tabs
     AutoRoute(

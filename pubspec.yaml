@@ -54,6 +54,7 @@ dependencies:
 
   flutter_native_splash: ^2.4.6
   equatable: ^2.1.0
+  hooks_riverpod: ^2.6.1
 
 dev_dependencies:
   flutter_test:

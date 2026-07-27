@@ -2,9 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import '../widgets/elite_top_bar.dart';
 
-/// Elite top-up page with 2 steps: amount selection → payment method.
-/// Mirrors the TopUp screen from waslship-elite.
-@RoutePage(name: 'TopUpRoute')
+@RoutePage()
 class TopUpPage extends StatefulWidget {
   const TopUpPage({super.key, this.onConfirm, this.onBankTransfer});
 

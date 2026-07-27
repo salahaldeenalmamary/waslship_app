@@ -7,15 +7,7 @@ Future<void> main() async {
 
   await EasyLocalization.ensureInitialized();
 
-  await AppConfig.init();
-
   FlutterNativeSplash.remove();
 
-  runApp(
-    LocalizationWrapper(
-      child: ProviderScope(
-        child: App(),
-      ),
-    ),
-  );
+  runApp(LocalizationWrapper(child: ProviderScope(child: App())));
 }

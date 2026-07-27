@@ -2,9 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import '../widgets/elite_top_bar.dart';
 
-/// Elite TopUp success page shown after a successful wallet top-up.
-/// Mirrors the TopUpSuccess screen from waslship-elite.
-@RoutePage(name: 'TopUpSuccessRoute')
+@RoutePage()
 class TopUpSuccessPage extends StatelessWidget {
   const TopUpSuccessPage({super.key, this.onDone});
 

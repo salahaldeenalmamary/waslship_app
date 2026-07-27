@@ -4,9 +4,7 @@ import '../widgets/elite_top_bar.dart';
 import '../widgets/elite_shipment_card.dart';
 import '../widgets/elite_empty_state.dart';
 
-/// Elite shipments page with tab filter and search.
-/// Mirrors the Shipments screen from waslship-elite.
-@RoutePage(name: 'ShipmentsRoute')
+@RoutePage()
 class ShipmentsPage extends StatefulWidget {
   const ShipmentsPage({super.key, this.onTrack});
 

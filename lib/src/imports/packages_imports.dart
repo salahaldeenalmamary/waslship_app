@@ -4,6 +4,8 @@ export 'package:flutter_hooks/flutter_hooks.dart';
 export 'package:equatable/equatable.dart';
 export 'package:flutter_riverpod/flutter_riverpod.dart'
     hide describeIdentity, shortHash;
+export 'package:hooks_riverpod/hooks_riverpod.dart'
+    hide describeIdentity, shortHash;
 export 'package:auto_route/auto_route.dart'
     hide
         kCupertinoModalBarrierColor,
