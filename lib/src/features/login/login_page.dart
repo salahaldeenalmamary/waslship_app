@@ -2,8 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:waslship/src/app/routing/app_router.gr.dart';
 
-import '../create_shipment/create_shipment_page.dart';
-
 @RoutePage()
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key, this.onLogin});
@@ -257,9 +255,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
-                        context.router.pushWidget(CreateShipmentPage());
-                      },
+                      onPressed: () {},
                       child: Text(
                         'إنشاء حساب جديد',
                         style: textTheme.bodyMedium?.copyWith(

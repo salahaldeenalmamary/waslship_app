@@ -5,9 +5,7 @@ import '../widgets/elite_top_bar.dart';
 import '../widgets/elite_stat_card.dart';
 import '../widgets/elite_transaction_item.dart';
 
-/// Elite wallet page.
-/// Mirrors the Wallet screen from waslship-elite.
-@RoutePage(name: 'WalletRoute')
+@RoutePage()
 class WalletPage extends StatelessWidget {
   const WalletPage({super.key});
 
