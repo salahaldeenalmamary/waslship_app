@@ -6,12 +6,12 @@ class AppConfig {
   AppConfig._();
   static late final Dio dio;
 
-  static String get baseUrl => _getBaseUrl();
+  static String get baseUrl => 'https://api.waslship.com';
 
   static Future<void> init() async {
     dio = Dio(
       BaseOptions(
-        baseUrl: _getBaseUrl(),
+        baseUrl: baseUrl,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         headers: {
@@ -40,7 +40,5 @@ class AppConfig {
 
   }
 
-  static String _getBaseUrl() {
-    return dotenv.get('API_BASE_URL', fallback: '');
-  }
+ 
 }

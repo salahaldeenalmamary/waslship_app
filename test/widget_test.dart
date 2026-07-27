@@ -17,7 +17,7 @@ void main() {
         supportedLocales: const [Locale('en'),Locale('ar'),],
         path: 'assets/translations',
         fallbackLocale: const Locale('en'),
-        child: const ProviderScope(child: App()),
+        child:  ProviderScope(child: App()),
       )
     );
 

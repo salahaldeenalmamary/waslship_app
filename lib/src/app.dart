@@ -1,31 +1,29 @@
 import 'package:waslship/src/imports/imports.dart';
 
+import 'app/routing/app_router.dart';
+
 class App extends StatelessWidget {
-  const App({super.key});
+  App({super.key});
+
+  final _appRouter = AppRouter();
 
   @override
   Widget build(BuildContext context) {
-    final current = _buildMaterialApp(context);
-    return ScreenUtilWrapper(child: current);
-  }
+    return ScreenUtilWrapper(
+      child: MaterialApp.router(
+        title: 'WaslShip',
+        debugShowCheckedModeBanner: false,
 
-  Widget _buildMaterialApp(BuildContext context) {
-    return MaterialApp.router(
-      title: 'waslship',
-      debugShowCheckedModeBanner: false,
-      theme: buildLightTheme(primaryColorHex: '#6750A4'),
-      darkTheme: buildDarkTheme(primaryColorHex: '#6750A4'),
-      themeMode: ThemeMode.system,
-      routerConfig: AppRouter().config(),
-      localizationsDelegates: context.localizationDelegates,
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
-      builder: (context, child) {
-        Widget current = child!;
-        current = SkeletonWrapper(child: current);
-  
-        return current;
-      },
+        routerConfig: _appRouter.config(),
+
+        theme: buildLightTheme(primaryColorHex: '#6750A4'),
+       
+
+
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+      ),
     );
   }
 }
