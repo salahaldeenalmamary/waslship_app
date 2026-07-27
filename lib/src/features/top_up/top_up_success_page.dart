@@ -15,7 +15,7 @@ class TopUpSuccessPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.surface,
-      appBar: EliteTopBar(title: 'شحن الرصيد', showBack: false),
+      appBar: const EliteTopBar(title: 'شحن الرصيد', showBack: false),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),

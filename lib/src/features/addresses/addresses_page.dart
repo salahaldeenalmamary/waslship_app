@@ -52,7 +52,7 @@ class _AddressesPageState extends State<AddressesPage> {
 
     return Scaffold(
       backgroundColor: colors.surfaceContainer,
-      appBar: EliteTopBar(title: 'العناوين المحفوظة', showBack: true),
+      appBar: const EliteTopBar(title: 'العناوين المحفوظة', showBack: true),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: widget.onAddNew,
         icon: const Icon(Icons.add_location_rounded),

@@ -119,7 +119,7 @@ class _TopUpPageState extends State<TopUpPage> {
                     const SizedBox(height: 12),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.shield_rounded,
                           size: 14,
                           color: Colors.white70,
@@ -214,10 +214,10 @@ class _TopUpPageState extends State<TopUpPage> {
                 controller: _customController,
                 keyboardType: TextInputType.number,
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: '0.00',
                   suffixText: 'ر.س',
-                  contentPadding: const EdgeInsets.symmetric(
+                  contentPadding: EdgeInsets.symmetric(
                     horizontal: 16,
                     vertical: 16,
                   ),

@@ -73,7 +73,7 @@ class ForgotPasswordPage extends HookConsumerWidget {
                   textDirection: TextDirection.rtl,
                   textAlign: TextAlign.right,
                   keyboardType: TextInputType.emailAddress,
-                  validator: (v) => v?.isEmpty == true
+                  validator: (v) => v?.isEmpty ?? false
                       ? 'يرجى إدخال البريد الإلكتروني'
                       : null,
                   decoration: InputDecoration(

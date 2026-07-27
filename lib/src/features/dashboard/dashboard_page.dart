@@ -28,7 +28,7 @@ class DashboardPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // ── Stats Grid ─────────────────────────────────────────────
-            Row(
+            const Row(
               children: [
                 Expanded(
                   child: EliteStatCard(
@@ -37,13 +37,13 @@ class DashboardPage extends StatelessWidget {
                     icon: Icons.calendar_month_outlined,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: EliteStatCard(
                     title: 'تم تسليمها اليوم',
                     value: '4',
                     icon: Icons.check_circle_outline_rounded,
-                    iconColor: const Color(0xFF10B981),
+                    iconColor: Color(0xFF10B981),
                   ),
                 ),
               ],
@@ -180,7 +180,7 @@ class _HeroCard extends StatelessWidget {
                 onPressed: () {
                   //   context.router.push(CreateShipmentRoute());
                 },
-                child: Text('إنشاء شحنة'),
+                child: const Text('إنشاء شحنة'),
               ),
             ],
           ),

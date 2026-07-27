@@ -14,6 +14,8 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: LoginRoute.page, initial: true),
     AutoRoute(page: RegisterRoute.page),
     AutoRoute(page: ForgotPasswordRoute.page),
+    AutoRoute(page: OtpRoute.page),
+    AutoRoute(page: ResetPasswordRoute.page),
 
     // Shell with 4 bottom-nav tabs
     AutoRoute(

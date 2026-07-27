@@ -2,7 +2,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import '../widgets/elite_top_bar.dart';
 
-
 @RoutePage()
 class BankTransferPage extends StatefulWidget {
   const BankTransferPage({super.key, this.onConfirm});
@@ -47,7 +46,7 @@ class _BankTransferPageState extends State<BankTransferPage> {
 
     return Scaffold(
       backgroundColor: colors.surface,
-      appBar: EliteTopBar(title: 'التحويل البنكي', showBack: true),
+      appBar: const EliteTopBar(title: 'التحويل البنكي', showBack: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
