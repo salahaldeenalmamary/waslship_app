@@ -27,7 +27,7 @@ class RegisterPage extends HookConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       appBar: AppBar(
         title: Text(
           'إنشاء حساب جديد',
@@ -154,12 +154,8 @@ class RegisterPage extends HookConsumerWidget {
 
                 // Terms Checkbox
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Checkbox(
-                      value: acceptTerms.value,
-                      onChanged: (v) => acceptTerms.value = v ?? false,
-                      activeColor: colors.primary,
-                    ),
                     Expanded(
                       child: GestureDetector(
                         onTap: () => acceptTerms.value = !acceptTerms.value,
@@ -170,6 +166,11 @@ class RegisterPage extends HookConsumerWidget {
                           ),
                         ),
                       ),
+                    ),
+                    Checkbox(
+                      value: acceptTerms.value,
+                      onChanged: (v) => acceptTerms.value = v ?? false,
+                      activeColor: colors.primary,
                     ),
                   ],
                 ),
@@ -254,7 +255,7 @@ class RegisterPage extends HookConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
           label,

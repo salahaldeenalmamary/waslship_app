@@ -17,7 +17,7 @@ class DashboardPage extends StatelessWidget {
 
     return Scaffold(
       appBar: const EliteTopBar(title: 'واصل شيب إيليت'),
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(

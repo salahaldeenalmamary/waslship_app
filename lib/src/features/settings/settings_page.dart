@@ -56,7 +56,7 @@ class SettingsPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       appBar: EliteTopBar(title: 'الإعدادات'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),

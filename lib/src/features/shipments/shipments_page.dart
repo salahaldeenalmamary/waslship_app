@@ -76,90 +76,89 @@ class _ShipmentsPageState extends State<ShipmentsPage> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: colors.surface,
-      appBar: EliteTopBar(title: 'WaslShip - قائمة الشحنات', showMenu: true),
+      backgroundColor: colors.surfaceContainer,
+      appBar: const EliteTopBar(
+        title: 'WaslShip - قائمة الشحنات',
+        showMenu: true,
+      ),
       body: Column(
         children: [
-          // ── Sticky Filter + Search ──────────────────────────────────
-          Container(
-            color: colors.surface,
-            child: Column(
-              children: [
-                const SizedBox(height: 12),
-                // Tab chips
-                SizedBox(
-                  height: 44,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
-                    itemCount: _tabs.length,
-                    itemBuilder: (context, i) {
-                      final tab = _tabs[i];
-                      final active = _activeTab == tab;
-                      return GestureDetector(
-                        onTap: () => setState(() => _activeTab = tab),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
+          Column(
+            children: [
+              const SizedBox(height: 12),
+              // Tab chips
+              SizedBox(
+                height: 44,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemCount: _tabs.length,
+                  itemBuilder: (context, i) {
+                    final tab = _tabs[i];
+                    final active = _activeTab == tab;
+                    return GestureDetector(
+                      onTap: () => setState(() => _activeTab = tab),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: active
+                              ? colors.primary
+                              : colors.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          tab,
+                          style: textTheme.labelMedium?.copyWith(
                             color: active
-                                ? colors.primary
-                                : colors.surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            tab,
-                            style: textTheme.labelMedium?.copyWith(
-                              color: active
-                                  ? colors.onPrimary
-                                  : colors.onSurfaceVariant,
-                              fontWeight: FontWeight.w700,
-                            ),
+                                ? colors.onPrimary
+                                : colors.onSurfaceVariant,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 12),
-                // Search field
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                    controller: _searchController,
-                    textDirection: TextDirection.rtl,
-                    onChanged: (v) => setState(() => _searchQuery = v),
-                    decoration: InputDecoration(
-                      hintText: 'البحث برقم الشحنة أو اسم العميل...',
-                      prefixIcon: const Icon(Icons.search_rounded),
-                      filled: true,
-                      fillColor: colors.surfaceContainerLow,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
                       ),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear_rounded),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() => _searchQuery = '');
-                              },
-                            )
-                          : null,
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Search field
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
+                  controller: _searchController,
+                  textDirection: TextDirection.rtl,
+                  onChanged: (v) => setState(() => _searchQuery = v),
+                  decoration: InputDecoration(
+                    hintText: 'البحث برقم الشحنة أو اسم العميل...',
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    filled: true,
+                    fillColor: colors.surfaceContainerLow,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
                     ),
+                    suffixIcon: _searchQuery.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear_rounded),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _searchQuery = '');
+                            },
+                          )
+                        : null,
                   ),
                 ),
-                const SizedBox(height: 12),
-                Divider(height: 1, color: colors.outlineVariant),
-              ],
-            ),
+              ),
+              const SizedBox(height: 12),
+              Divider(height: 1, color: colors.outlineVariant),
+            ],
           ),
-          // ── Shipment List ───────────────────────────────────────────
+
           Expanded(
             child: _filtered.isEmpty
                 ? EliteEmptyState(

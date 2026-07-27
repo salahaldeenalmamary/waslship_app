@@ -62,7 +62,7 @@ class LoginPage extends HookConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

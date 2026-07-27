@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-
 @RoutePage()
 class AddLocationPage extends StatefulWidget {
   const AddLocationPage({super.key, this.onSave});
@@ -34,7 +33,7 @@ class _AddLocationPageState extends State<AddLocationPage> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       body: Column(
         children: [
           // ── Map Placeholder ────────────────────────────────────────────

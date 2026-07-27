@@ -16,7 +16,7 @@ class ForgotPasswordPage extends HookConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       appBar: AppBar(
         title: Text(
           'استعادة كلمة المرور',
@@ -91,7 +91,7 @@ class ForgotPasswordPage extends HookConsumerWidget {
                   onPressed: () {
                     if (!(formKey.currentState?.validate() ?? false)) {
                       return Future.value(
-                        Result.err('يرجى إدخال البريد الإلكتروني'),
+                        const Result.err('يرجى إدخال البريد الإلكتروني'),
                       );
                     }
                     final request = ForgotPasswordRequestDto(

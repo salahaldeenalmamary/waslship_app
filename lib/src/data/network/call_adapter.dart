@@ -17,7 +17,6 @@ import 'result.dart';
 /// Future<Result<List<BookingDto>>> getBookings();
 /// ```
 class ApiResultAdapter<T> extends CallAdapter<Future<T>, Future<Result<T>>> {
-  
   @override
   Future<Result<T>> adapt(Future<T> Function() call) async {
     try {

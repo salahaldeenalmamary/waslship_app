@@ -51,7 +51,7 @@ class _AddressesPageState extends State<AddressesPage> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       appBar: EliteTopBar(title: 'العناوين المحفوظة', showBack: true),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: widget.onAddNew,

@@ -16,7 +16,7 @@ class WalletPage extends StatelessWidget {
     const gold = Color(0xFFC5A059);
 
     return Scaffold(
-      backgroundColor: colors.surface,
+      backgroundColor: colors.surfaceContainer,
       appBar: EliteTopBar(title: 'المحفظة'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

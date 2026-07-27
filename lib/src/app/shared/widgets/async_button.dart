@@ -286,7 +286,7 @@ class _AsyncButtonState extends State<AsyncButton> {
 
     if (widget.width != null || widget.height != null) {
       return SizedBox(
-        width: widget.width,
+        width: widget.width ?? double.infinity,
         height: widget.height,
         child: button,
       );
