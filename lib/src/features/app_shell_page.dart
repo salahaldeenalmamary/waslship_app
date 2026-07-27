@@ -48,8 +48,8 @@ const List<_TabDef> _kTabs = [
   ),
   (
     label: 'الشحنات',
-    icon: Icons.inventory_2_outlined,
-    activeIcon: Icons.inventory_2_rounded,
+    icon: Icons.local_shipping_outlined,
+    activeIcon: Icons.local_shipping_rounded,
   ),
   (
     label: 'المحفظة',
@@ -118,18 +118,21 @@ class _EliteBottomNav extends StatelessWidget {
                       child: Icon(
                         isActive ? tab.activeIcon : tab.icon,
                         size: 24,
-                        color:
-                            isActive ? colors.primary : colors.onSurfaceVariant,
+                        color: isActive
+                            ? colors.primary
+                            : colors.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       tab.label,
                       style: textTheme.labelSmall?.copyWith(
-                        color:
-                            isActive ? colors.primary : colors.onSurfaceVariant,
-                        fontWeight:
-                            isActive ? FontWeight.w700 : FontWeight.w500,
+                        color: isActive
+                            ? colors.primary
+                            : colors.onSurfaceVariant,
+                        fontWeight: isActive
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                         fontSize: 10,
                       ),
                     ),

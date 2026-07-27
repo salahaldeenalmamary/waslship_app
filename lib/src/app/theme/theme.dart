@@ -70,12 +70,21 @@ class AppDesignTokens extends ThemeExtension<AppDesignTokens> {
       paddingSmall: lerpDouble(paddingSmall, other.paddingSmall, t)!,
       paddingMedium: lerpDouble(paddingMedium, other.paddingMedium, t)!,
       paddingLarge: lerpDouble(paddingLarge, other.paddingLarge, t)!,
-      borderRadiusSmall:
-          lerpDouble(borderRadiusSmall, other.borderRadiusSmall, t)!,
-      borderRadiusMedium:
-          lerpDouble(borderRadiusMedium, other.borderRadiusMedium, t)!,
-      borderRadiusLarge:
-          lerpDouble(borderRadiusLarge, other.borderRadiusLarge, t)!,
+      borderRadiusSmall: lerpDouble(
+        borderRadiusSmall,
+        other.borderRadiusSmall,
+        t,
+      )!,
+      borderRadiusMedium: lerpDouble(
+        borderRadiusMedium,
+        other.borderRadiusMedium,
+        t,
+      )!,
+      borderRadiusLarge: lerpDouble(
+        borderRadiusLarge,
+        other.borderRadiusLarge,
+        t,
+      )!,
       cardElevation: lerpDouble(cardElevation, other.cardElevation, t)!,
     );
   }
@@ -89,7 +98,9 @@ class AppDesignTokens extends ThemeExtension<AppDesignTokens> {
 }
 
 ThemeData _buildTheme(
-    ColorScheme colorScheme, AppColorsExtension customColors) {
+  ColorScheme colorScheme,
+  AppColorsExtension customColors,
+) {
   final textTheme = buildTextTheme();
 
   return ThemeData(
@@ -97,10 +108,7 @@ ThemeData _buildTheme(
     primaryColor: colorScheme.primary,
     colorScheme: colorScheme,
     textTheme: textTheme,
-    extensions: [
-      customColors,
-      AppDesignTokens.fallback,
-    ],
+    extensions: [customColors, AppDesignTokens.fallback],
 
     // --- Basic Elements ---
     scaffoldBackgroundColor: colorScheme.surface,
@@ -109,10 +117,7 @@ ThemeData _buildTheme(
       thickness: 1,
       space: 1,
     ),
-    iconTheme: IconThemeData(
-      color: colorScheme.onSurface,
-      size: 24,
-    ),
+    iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
 
     // --- Widget Themes ---
 
@@ -130,19 +135,22 @@ ThemeData _buildTheme(
 
     // Button Themes
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
-        minimumSize: const Size(88, 48),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 0,
-      ).copyWith(
-        elevation: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.hovered)) return 2;
-          return 0;
-        }),
-      ),
+      style:
+          ElevatedButton.styleFrom(
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
+            minimumSize: const Size(88, 48),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
+          ).copyWith(
+            elevation: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.hovered)) return 2;
+              return 0;
+            }),
+          ),
     ),
 
     filledButtonTheme: FilledButtonThemeData(
@@ -203,9 +211,11 @@ ThemeData _buildTheme(
       ),
       floatingLabelStyle: TextStyle(color: colorScheme.primary),
       labelStyle: textTheme.labelMedium?.copyWith(
-          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+      ),
       hintStyle: textTheme.labelMedium?.copyWith(
-          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+        color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+      ),
     ),
 
     // Navigation Bar Theme
@@ -218,10 +228,13 @@ ThemeData _buildTheme(
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
           return textTheme.labelSmall?.copyWith(
-              color: colorScheme.primary, fontWeight: FontWeight.bold);
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          );
         }
-        return textTheme.labelSmall
-            ?.copyWith(color: colorScheme.onSurfaceVariant);
+        return textTheme.labelSmall?.copyWith(
+          color: colorScheme.onSurfaceVariant,
+        );
       }),
     ),
 
@@ -230,10 +243,13 @@ ThemeData _buildTheme(
       backgroundColor: colorScheme.surface,
       indicatorColor: colorScheme.secondaryContainer,
       labelType: NavigationRailLabelType.all,
-      unselectedLabelTextStyle:
-          textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),
-      selectedLabelTextStyle: textTheme.labelSmall
-          ?.copyWith(color: colorScheme.primary, fontWeight: FontWeight.bold),
+      unselectedLabelTextStyle: textTheme.labelSmall?.copyWith(
+        color: colorScheme.onSurfaceVariant,
+      ),
+      selectedLabelTextStyle: textTheme.labelSmall?.copyWith(
+        color: colorScheme.primary,
+        fontWeight: FontWeight.bold,
+      ),
     ),
 
     // Tab Bar Theme
@@ -268,10 +284,12 @@ ThemeData _buildTheme(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       visualDensity: VisualDensity.comfortable,
-      titleTextStyle:
-          textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-      subtitleTextStyle:
-          textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+      titleTextStyle: textTheme.titleMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+      ),
+      subtitleTextStyle: textTheme.bodyMedium?.copyWith(
+        color: colorScheme.onSurfaceVariant,
+      ),
     ),
 
     // Checkbox Theme
@@ -298,8 +316,9 @@ ThemeData _buildTheme(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
       backgroundColor: colorScheme.inverseSurface,
-      contentTextStyle:
-          textTheme.bodyMedium?.copyWith(color: colorScheme.onInverseSurface),
+      contentTextStyle: textTheme.bodyMedium?.copyWith(
+        color: colorScheme.onInverseSurface,
+      ),
     ),
 
     // Dialog Theme
@@ -307,8 +326,9 @@ ThemeData _buildTheme(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       elevation: 0,
       backgroundColor: colorScheme.surface,
-      titleTextStyle:
-          textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+      titleTextStyle: textTheme.titleLarge?.copyWith(
+        fontWeight: FontWeight.bold,
+      ),
       contentTextStyle: textTheme.bodyMedium,
     ),
 
@@ -317,9 +337,7 @@ ThemeData _buildTheme(
       showDragHandle: true,
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(28),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
     ),
 
@@ -328,11 +346,14 @@ ThemeData _buildTheme(
       elevation: WidgetStateProperty.all(0),
       backgroundColor: WidgetStateProperty.all(colorScheme.surfaceContainerLow),
       shape: WidgetStateProperty.all(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(28))),
-      padding:
-          WidgetStateProperty.all(const EdgeInsets.symmetric(horizontal: 16)),
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      ),
+      padding: WidgetStateProperty.all(
+        const EdgeInsets.symmetric(horizontal: 16),
+      ),
       hintStyle: WidgetStateProperty.all(
-          textTheme.bodyLarge?.copyWith(color: colorScheme.onSurfaceVariant)),
+        textTheme.bodyLarge?.copyWith(color: colorScheme.onSurfaceVariant),
+      ),
     ),
 
     // Badge Theme
@@ -357,8 +378,9 @@ ThemeData _buildTheme(
         color: colorScheme.inverseSurface.withValues(alpha: 0.9),
         borderRadius: BorderRadius.circular(8),
       ),
-      textStyle:
-          textTheme.labelSmall?.copyWith(color: colorScheme.onInverseSurface),
+      textStyle: textTheme.labelSmall?.copyWith(
+        color: colorScheme.onInverseSurface,
+      ),
     ),
   );
 }
@@ -366,45 +388,57 @@ ThemeData _buildTheme(
 ThemeData buildLightTheme({String primaryColorHex = ''}) {
   const colorScheme = ColorScheme(
     brightness: Brightness.light,
-    surface: Color(0xFFf8f9fa),
-    surfaceDim: Color(0xFFd9dadb),
-    surfaceBright: Color(0xFFf8f9fa),
-    surfaceContainerLowest: Color(0xFFffffff),
-    surfaceContainerLow: Color(0xFFf3f4f5),
-    surfaceContainer: Color(0xFFedeeef),
-    surfaceContainerHigh: Color(0xFFe7e8e9),
-    surfaceContainerHighest: Color(0xFFe1e3e4),
-    onSurface: Color(0xFF191c1d),
-    onSurfaceVariant: Color(0xFF44474d),
-    inverseSurface: Color(0xFF2e3132),
-    onInverseSurface: Color(0xFFf0f1f2),
-    outline: Color(0xFF75777e),
-    outlineVariant: Color(0xFFc5c6ce),
-    surfaceTint: Color(0xFF4e5f7c),
-    primary: Color(0xFF0a1d37),
-    onPrimary: Color(0xFFffffff),
-    primaryContainer: Color(0xFF0a1d37),
-    onPrimaryContainer: Color(0xFF7586a5),
-    inversePrimary: Color(0xFFb6c7e9),
-    secondary: Color(0xFF4a5f82),
-    onSecondary: Color(0xFFffffff),
-    secondaryContainer: Color(0xFFc0d5fe),
-    onSecondaryContainer: Color(0xFF475c7f),
-    tertiary: Color(0xFF050300),
-    onTertiary: Color(0xFFffffff),
-    tertiaryContainer: Color(0xFF291b00),
-    onTertiaryContainer: Color(0xFFa2803c),
-    error: Color(0xFFba1a1a),
-    onError: Color(0xFFffffff),
-    errorContainer: Color(0xFFffdad6),
-    onErrorContainer: Color(0xFF93000a),
+    // Surface colors
+    surface: Color(0xFFf8f9fa), // --color-surface
+    surfaceDim: Color(0xFFd9dadb), // --color-surface-dim
+    surfaceBright: Color(0xFFf8f9fa), // --color-surface-bright
+    surfaceContainerLowest: Color(
+      0xFFffffff,
+    ), // --color-surface-container-lowest
+    surfaceContainerLow: Color(0xFFf3f4f5), // --color-surface-container-low
+    surfaceContainer: Color(0xFFedeeef), // --color-surface-container
+    surfaceContainerHigh: Color(0xFFe7e8e9), // --color-surface-container-high
+    surfaceContainerHighest: Color(
+      0xFFe1e3e4,
+    ), // --color-surface-container-highest
+    // On surface colors
+    onSurface: Color(0xFF191c1d), // --color-on-surface
+    onSurfaceVariant: Color(0xFF44474d), // --color-on-surface-variant
+    inverseSurface: Color(0xFF2e3132), // --color-inverse-surface
+    onInverseSurface: Color(0xFFf0f1f2), // --color-inverse-on-surface
+    // Outline colors
+    outline: Color(0xFF75777e), // --color-outline
+    outlineVariant: Color(0xFFc5c6ce), // --color-outline-variant
+    // Primary colors (Amber/Orange)
+    surfaceTint: Color(0xFFD97706), // --color-surface-tint
+    primary: Color(0xFFD97706), // --color-primary
+    onPrimary: Color(0xFFFFFFFF), // --color-on-primary
+    primaryContainer: Color(0xFFFEF3C7), // --color-primary-container
+    onPrimaryContainer: Color(0xFF78350F), // --color-on-primary-container
+    inversePrimary: Color(0xFFF59E0B), // --color-inverse-primary
+    // Secondary colors (Dark gray/Zinc)
+    secondary: Color(0xFF27272A), // --color-secondary
+    onSecondary: Color(0xFFFFFFFF), // --color-on-secondary
+    secondaryContainer: Color(0xFFF4F4F5), // --color-secondary-container
+    onSecondaryContainer: Color(0xFF18181B), // --color-on-secondary-container
+    // Tertiary colors (Dark)
+    tertiary: Color(0xFF050300), // --color-tertiary
+    onTertiary: Color(0xFFffffff), // --color-on-tertiary
+    tertiaryContainer: Color(0xFF291b00), // --color-tertiary-container
+    onTertiaryContainer: Color(0xFFa2803c), // --color-on-tertiary-container
+    // Error colors
+    error: Color(0xFFba1a1a), // --color-error
+    onError: Color(0xFFffffff), // --color-on-error
+    errorContainer: Color(0xFFffdad6), // --color-error-container
+    onErrorContainer: Color(0xFF93000a), // --color-on-error-container
   );
   return _buildTheme(colorScheme, AppPalettes.light);
 }
 
 ThemeData buildDarkTheme({String primaryColorHex = ''}) {
-  final seed =
-      _colorFromHex(primaryColorHex.isNotEmpty ? primaryColorHex : '#6750A4');
+  final seed = _colorFromHex(
+    primaryColorHex.isNotEmpty ? primaryColorHex : '#6750A4',
+  );
   final colorScheme = ColorScheme.fromSeed(
     seedColor: seed,
     brightness: Brightness.dark,
@@ -413,8 +447,9 @@ ThemeData buildDarkTheme({String primaryColorHex = ''}) {
 }
 
 CupertinoThemeData buildCupertinoTheme({required String primaryColorHex}) {
-  final seed =
-      _colorFromHex(primaryColorHex.isNotEmpty ? primaryColorHex : '#007AFF');
+  final seed = _colorFromHex(
+    primaryColorHex.isNotEmpty ? primaryColorHex : '#007AFF',
+  );
 
   return CupertinoThemeData(
     applyThemeToAll: true,
@@ -425,10 +460,7 @@ CupertinoThemeData buildCupertinoTheme({required String primaryColorHex}) {
     barBackgroundColor: CupertinoColors.systemGrey6,
     textTheme: CupertinoTextThemeData(
       primaryColor: seed,
-      textStyle: const TextStyle(
-        fontSize: 17,
-        letterSpacing: -0.41,
-      ),
+      textStyle: const TextStyle(fontSize: 17, letterSpacing: -0.41),
       actionTextStyle: TextStyle(
         color: seed,
         fontSize: 17,
@@ -449,10 +481,7 @@ CupertinoThemeData buildCupertinoTheme({required String primaryColorHex}) {
         fontWeight: FontWeight.w500,
         letterSpacing: -0.24,
       ),
-      pickerTextStyle: const TextStyle(
-        fontSize: 21,
-        letterSpacing: -0.41,
-      ),
+      pickerTextStyle: const TextStyle(fontSize: 21, letterSpacing: -0.41),
       dateTimePickerTextStyle: const TextStyle(
         fontSize: 21,
         letterSpacing: -0.41,

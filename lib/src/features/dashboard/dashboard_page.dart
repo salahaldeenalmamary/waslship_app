@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:waslship/src/app/extensions/widget_extension.dart';
 import '../widgets/elite_stat_card.dart';
 import '../widgets/elite_top_bar.dart';
 
@@ -15,8 +16,7 @@ class DashboardPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      
-      appBar: EliteTopBar(title: 'واصل شيب إيليت'),
+      appBar: const EliteTopBar(title: 'واصل شيب إيليت'),
       backgroundColor: colors.surface,
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -132,50 +132,58 @@ class _HeroCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: colors.primary,
+        color: colors.secondary,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: colors.primary.withValues(alpha: 0.3),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'إجمالي الشحنات النشطة',
-            style: textTheme.labelSmall?.copyWith(
-              color: Colors.white70,
-              letterSpacing: 1.5,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 4),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(
-                '24',
-                style: textTheme.displaySmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                'شحنة',
-                style: textTheme.titleSmall?.copyWith(
-                  color: gold,
-                  fontWeight: FontWeight.w700,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'إجمالي الشحنات النشطة',
+                    style: textTheme.labelSmall?.copyWith(
+                      color: Colors.white70,
+                      letterSpacing: 1.5,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        '24',
+                        style: textTheme.displaySmall?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'شحنة',
+                        style: textTheme.titleSmall?.copyWith(
+                          color: gold,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ).expanded,
+              ElevatedButton(
+                onPressed: () {
+                  //   context.router.push(CreateShipmentRoute());
+                },
+                child: Text('إنشاء شحنة'),
               ),
             ],
           ),
-          const SizedBox(height: 20),
           Divider(color: Colors.white.withValues(alpha: 0.12), height: 1),
           const SizedBox(height: 16),
           Row(

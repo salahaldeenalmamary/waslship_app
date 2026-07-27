@@ -1,12 +1,10 @@
-import 'package:fpdart/fpdart.dart';
+import '../../imports/imports.dart';
+import 'typedefs.dart';
 
-import '../../imports/core_imports.dart';
+/// Type alias for Either with Failure on left and T on right
+typedef FutureEither<T> = Future<Either<Failure, T>>;
 
-/// A reusable generic function to handle potential exceptions in async tasks
-/// and map them to the [Either] type matching [FutureEither<T>].
-///
-/// If [requiresNetwork] is `true` and [isNetworkAvailable] returns `false`,
-/// the [action] will not be executed and a [NetworkFailure] will be returned.
+/// Run task returning Either directly
 FutureEither<T> runTask<T>(
   Future<T> Function() action, {
   bool requiresNetwork = false,
@@ -21,7 +19,7 @@ FutureEither<T> runTask<T>(
             'No internet connection. Please check your connection and try again.',
         status: 'warning',
       );
-      return left(
+      return Left(
         const NetworkFailure(
           'No internet connection. Please check your connection and try again.',
         ),
@@ -31,12 +29,10 @@ FutureEither<T> runTask<T>(
 
   try {
     final result = await action();
-    return right(result);
+    return Right(result);
   } catch (error, stackTrace) {
-    AppLogger.error('Task execution failed $error', [error, stackTrace]);
+    AppLogger.error('Task execution failed: $error', [error, stackTrace]);
     final errorMessage = AppErrorHandler.format(error);
-
-    // Depending on logic, map error strings/types to specific Failure variants
-    return left(ServerFailure(errorMessage, error: error));
+    return Left(ServerFailure(errorMessage, error: error));
   }
 }

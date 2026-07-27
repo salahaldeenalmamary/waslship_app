@@ -9,8 +9,7 @@ import '../widgets/elite_transaction_item.dart';
 /// Mirrors the Wallet screen from waslship-elite.
 @RoutePage(name: 'WalletRoute')
 class WalletPage extends StatelessWidget {
-  const WalletPage({super.key, });
-
+  const WalletPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -30,15 +29,8 @@ class WalletPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: colors.primary,
+                color: colors.secondary,
                 borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: colors.primary.withValues(alpha: 0.3),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +123,7 @@ class WalletPage extends StatelessWidget {
                   child: _QuickActionButton(
                     icon: Icons.credit_card_rounded,
                     label: 'شحن المحفظة',
-                    onTap: (){
+                    onTap: () {
                       context.router.push(TopUpRoute());
                     },
                     colors: colors,
@@ -144,7 +136,7 @@ class WalletPage extends StatelessWidget {
                   child: _QuickActionButton(
                     icon: Icons.account_balance_wallet_outlined,
                     label: 'سحب الأرباح',
-                    onTap: (){
+                    onTap: () {
                       context.router.push(BankTransferRoute());
                     },
                     colors: colors,
