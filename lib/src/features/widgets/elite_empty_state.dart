@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Empty state placeholder used in list screens.
-/// Mirrors the EmptyState component from waslship-elite.
 class EliteEmptyState extends StatelessWidget {
   const EliteEmptyState({
     super.key,

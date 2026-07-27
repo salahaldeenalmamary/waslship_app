@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 import '../../network/network.dart';
 import 'models/auth_dtos.dart';
-
 part 'auth_repo.g.dart';
 
 @RestApi(callAdapter: ApiResultAdapter)
