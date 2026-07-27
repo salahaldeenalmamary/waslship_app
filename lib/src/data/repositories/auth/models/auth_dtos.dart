@@ -133,11 +133,11 @@ class LogoutRequestDto {
 
 @JsonSerializable()
 class LoginResponseDto {
-  final String accessToken;
-  final String refreshToken;
-  final String tokenType;
-  final int expiresIn;
-  final UserDto user;
+  final String? accessToken;
+  final String? refreshToken;
+  final String? tokenType;
+  final int? expiresIn;
+  final UserDto? user;
 
   const LoginResponseDto({
     required this.accessToken,
@@ -156,14 +156,14 @@ class LoginResponseDto {
 @JsonSerializable()
 class UserDto {
   final int id;
-  final String name;
-  final String email;
-  final String phone;
+  final String? name;
+  final String? email;
+  final String? phone;
   final String? userType;
   final bool isVerified;
   final DateTime? emailVerifiedAt;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   const UserDto({
     required this.id,

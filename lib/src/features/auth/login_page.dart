@@ -1,7 +1,11 @@
+// File: lib/features/auth/presentation/login_page.dart
+
 import '../../app/providers/auth/auth_providers.dart';
 import '../../data/network/network.dart';
 import '../../data/repositories/auth/models/auth_dtos.dart';
 import '../../imports/imports.dart';
+
+enum LoginMethod { email, phone }
 
 @RoutePage()
 class LoginPage extends HookConsumerWidget {
@@ -11,25 +15,22 @@ class LoginPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final showPassword = useState(false);
     final rememberMe = useState(false);
+    final loginMethod = useState(LoginMethod.email);
 
     // Controllers with auto-dispose
     final emailController = useTextEditingController();
+    final phoneController = useTextEditingController();
     final passwordController = useTextEditingController();
     final formKey = useMemoized(() => GlobalKey<FormState>());
 
     // Focus nodes
     final emailFocusNode = useFocusNode();
+    final phoneFocusNode = useFocusNode();
     final passwordFocusNode = useFocusNode();
 
-    // ==========================================
     // Auth state
-    // ==========================================
     final authState = ref.watch(authNotifierProvider);
     final authNotifier = ref.read(authNotifierProvider.notifier);
-
-    // ==========================================
-    // Effects
-    // ==========================================
 
     // Check if already authenticated on mount
     useEffect(() {
@@ -42,12 +43,20 @@ class LoginPage extends HookConsumerWidget {
     }, []);
 
     // Clear error when fields change
-    useEffect(() {
-      if (authState.errorMessage != null) {
-        authNotifier.clearError();
-      }
-      return null;
-    }, [emailController.text, passwordController.text]);
+    useEffect(
+      () {
+        if (authState.errorMessage != null) {
+          authNotifier.clearError();
+        }
+        return null;
+      },
+      [
+        emailController.text,
+        phoneController.text,
+        passwordController.text,
+        loginMethod.value,
+      ],
+    );
 
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -81,37 +90,102 @@ class LoginPage extends HookConsumerWidget {
                       () => authNotifier.clearError(),
                     ),
 
-                  // Email Field
-                  _buildLabel(context, 'البريد الإلكتروني أو رقم الهاتف'),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    controller: emailController,
-                    focusNode: emailFocusNode,
-                    textDirection: TextDirection.rtl,
-                    textAlign: TextAlign.right,
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    onFieldSubmitted: (_) {
-                      passwordFocusNode.requestFocus();
-                    },
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'يرجى إدخال البريد الإلكتروني أو رقم الهاتف';
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'أدخل البريد الإلكتروني أو رقم الهاتف',
-                      prefixIcon: Icon(
-                        Icons.article_outlined,
-                        color: colors.onSurfaceVariant,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 16,
+                  // Login Method Toggle (Email / Phone)
+                  _buildLoginMethodToggle(
+                    loginMethod.value,
+                    (method) => loginMethod.value = method,
+                    colors,
+                    textTheme,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Email or Phone Field
+                  if (loginMethod.value == LoginMethod.email) ...[
+                    _buildLabel(context, 'البريد الإلكتروني'),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: emailController,
+                      focusNode: emailFocusNode,
+                      textDirection: TextDirection.rtl,
+                      textAlign: TextAlign.right,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        passwordFocusNode.requestFocus();
+                      },
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'يرجى إدخال البريد الإلكتروني';
+                        }
+                        if (!value.contains('@') || !value.contains('.')) {
+                          return 'يرجى إدخال بريد إلكتروني صحيح';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'example@email.com',
+                        prefixIcon: Icon(
+                          Icons.email_outlined,
+                          color: colors.onSurfaceVariant,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
                       ),
                     ),
-                  ),
+                  ] else ...[
+                    _buildLabel(context, 'رقم الهاتف'),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      controller: phoneController,
+                      focusNode: phoneFocusNode,
+                      textDirection: TextDirection.ltr,
+                      textAlign: TextAlign.right,
+                      keyboardType: TextInputType.phone,
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        passwordFocusNode.requestFocus();
+                      },
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'يرجى إدخال رقم الهاتف';
+                        }
+                        final cleaned = value.replaceAll(RegExp(r'\D'), '');
+                        if (cleaned.length < 9) {
+                          return 'يرجى إدخال رقم هاتف صحيح';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        hintText: '05XXXXXXXX',
+                        prefixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(width: 12),
+                            Text(
+                              '+966',
+                              style: TextStyle(
+                                color: colors.onSurface,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            Container(
+                              width: 1,
+                              height: 24,
+                              color: colors.outlineVariant,
+                              margin: const EdgeInsets.symmetric(horizontal: 8),
+                            ),
+                          ],
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 20),
 
                   // Password Field
@@ -127,7 +201,9 @@ class LoginPage extends HookConsumerWidget {
                     onFieldSubmitted: (_) => _handleLogin(
                       ref,
                       formKey,
+                      loginMethod.value,
                       emailController.text,
+                      phoneController.text,
                       passwordController.text,
                       rememberMe.value,
                     ),
@@ -226,7 +302,9 @@ class LoginPage extends HookConsumerWidget {
                     onPressed: () => _handleLogin(
                       ref,
                       formKey,
+                      loginMethod.value,
                       emailController.text,
+                      phoneController.text,
                       passwordController.text,
                       rememberMe.value,
                     ),
@@ -254,13 +332,113 @@ class LoginPage extends HookConsumerWidget {
   }
 
   // ============================================
-  // Business Logic (Pure Functions)
+  // Login Method Toggle
+  // ============================================
+
+  Widget _buildLoginMethodToggle(
+    LoginMethod currentMethod,
+    ValueChanged<LoginMethod> onChanged,
+    ColorScheme colors,
+    TextTheme textTheme,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: colors.outlineVariant.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () => onChanged(LoginMethod.email),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: currentMethod == LoginMethod.email
+                      ? colors.primary
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.email_outlined,
+                      size: 18,
+                      color: currentMethod == LoginMethod.email
+                          ? colors.onPrimary
+                          : colors.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'البريد الإلكتروني',
+                      style: textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: currentMethod == LoginMethod.email
+                            ? colors.onPrimary
+                            : colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () => onChanged(LoginMethod.phone),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: currentMethod == LoginMethod.phone
+                      ? colors.primary
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.phone_outlined,
+                      size: 18,
+                      color: currentMethod == LoginMethod.phone
+                          ? colors.onPrimary
+                          : colors.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'رقم الهاتف',
+                      style: textTheme.labelLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: currentMethod == LoginMethod.phone
+                            ? colors.onPrimary
+                            : colors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ============================================
+  // Business Logic
   // ============================================
 
   Future<Result<LoginResponseDto>> _handleLogin(
     WidgetRef ref,
     GlobalKey<FormState> formKey,
+    LoginMethod loginMethod,
     String email,
+    String phone,
     String password,
     bool rememberMe,
   ) async {
@@ -272,8 +450,9 @@ class LoginPage extends HookConsumerWidget {
       return Result.err('يرجى تصحيح الأخطاء في النموذج');
     }
 
+    // Create login request based on method
     final request = LoginRequestDto(
-      email: email.trim(),
+      email: loginMethod == LoginMethod.email ? email.trim() : phone,
       password: password,
       deviceToken: null,
       deviceType: 'android',
