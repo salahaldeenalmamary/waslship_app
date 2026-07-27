@@ -348,7 +348,7 @@ class OtpPage extends HookConsumerWidget {
 
     result.fold(
       onOk: (_) {
-        _handleSuccess(context, authState, otpController);
+        _handleSuccess(context, authState, otpController, email);
       },
       onErr: (message, _) {
         errorMessage.value = message;

@@ -232,7 +232,7 @@ class ResetPasswordPage extends HookConsumerWidget {
                   onPressed: () {
                     if (!(formKey.currentState?.validate() ?? false)) {
                       return Future.value(
-                        Result.err('يرجى تصحيح الأخطاء في النموذج'),
+                        const Result.err('يرجى تصحيح الأخطاء في النموذج'),
                       );
                     }
 

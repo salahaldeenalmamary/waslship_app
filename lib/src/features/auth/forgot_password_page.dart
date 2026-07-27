@@ -101,8 +101,9 @@ class ForgotPasswordPage extends HookConsumerWidget {
                   },
                   loadingMessage: 'جاري الإرسال...',
                   successMessage: 'تم إرسال رمز التحقق',
-                  // onSuccess: () => context.router.push(OtpRoute(
-                  //     email: emailController.text.trim())),
+                  onSuccess: () => context.router.push(
+                    OtpRoute(email: emailController.text.trim()),
+                  ),
                 ),
               ],
             ),

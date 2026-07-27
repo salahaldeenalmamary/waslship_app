@@ -16,3 +16,4 @@ export '../app/routing/global_navigator.dart';
 export '../app/services/services.dart';
 export '../app/shared/shared.dart';
 export '../app/routing/app_router.gr.dart';
+export '../data/network/network.dart';

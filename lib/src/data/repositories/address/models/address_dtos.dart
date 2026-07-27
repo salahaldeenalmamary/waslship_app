@@ -1,7 +1,9 @@
 // File: lib/features/address/data/dto/address_dtos.dart
 
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+part 'address_dtos.freezed.dart';
 part 'address_dtos.g.dart';
 
 // ============================================
@@ -101,55 +103,37 @@ class SetDefaultAddressRequestDto {
 }
 
 // ============================================
-// Response DTOs
+// Response DTOs with Freezed
 // ============================================
 
-@JsonSerializable()
-class AddressResponseDto {
-  final int id;
-  final int userId;
-  final String label;
-  final String fullName;
-  final String phone;
-  final String street;
-  final String city;
-  final String district;
-  final String? buildingNumber;
-  final String? apartmentNumber;
-  final String? floorNumber;
-  final String? additionalDirections;
-  final String? postalCode;
-  final double? latitude;
-  final double? longitude;
-  final bool isDefault;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
-  const AddressResponseDto({
-    required this.id,
-    required this.userId,
-    required this.label,
-    required this.fullName,
-    required this.phone,
-    required this.street,
-    required this.city,
-    required this.district,
-    this.buildingNumber,
-    this.apartmentNumber,
-    this.floorNumber,
-    this.additionalDirections,
-    this.postalCode,
-    this.latitude,
-    this.longitude,
-    required this.isDefault,
-    required this.createdAt,
-    required this.updatedAt,
-  });
+@freezed
+sealed class AddressResponseDto with _$AddressResponseDto {
+  const factory AddressResponseDto({
+    required int id,
+    required int userId,
+    required String label,
+    required String fullName,
+    required String phone,
+    required String street,
+    required String city,
+    required String district,
+    String? buildingNumber,
+    String? apartmentNumber,
+    String? floorNumber,
+    String? additionalDirections,
+    String? postalCode,
+    double? latitude,
+    double? longitude,
+    @Default(false) bool isDefault,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) = _AddressResponseDto;
 
   factory AddressResponseDto.fromJson(Map<String, dynamic> json) =>
       _$AddressResponseDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$AddressResponseDtoToJson(this);
+  // Additional methods and getters
+  const AddressResponseDto._();
 
   /// Get full address as formatted string
   String get formattedAddress {
@@ -169,16 +153,16 @@ class AddressResponseDto {
   String get shortAddress => '$district, $city';
 }
 
-@JsonSerializable()
-class AddressListResponseDto {
-  final List<AddressResponseDto> addresses;
-
-  const AddressListResponseDto({required this.addresses});
+@Freezed()
+sealed class AddressListResponseDto with _$AddressListResponseDto {
+  const factory AddressListResponseDto({
+    required List<AddressResponseDto> addresses,
+  }) = _AddressListResponseDto;
 
   factory AddressListResponseDto.fromJson(Map<String, dynamic> json) =>
       _$AddressListResponseDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$AddressListResponseDtoToJson(this);
+  const AddressListResponseDto._();
 
   /// Get default address if any
   AddressResponseDto? get defaultAddress {
@@ -188,4 +172,12 @@ class AddressListResponseDto {
       return addresses.isNotEmpty ? addresses.first : null;
     }
   }
+
+  /// Get addresses filtered by city
+  List<AddressResponseDto> getByCity(String city) {
+    return addresses.where((addr) => addr.city == city).toList();
+  }
+
+  /// Check if there are any addresses
+  bool get hasAddresses => addresses.isNotEmpty;
 }
