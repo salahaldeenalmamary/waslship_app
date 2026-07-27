@@ -1,10 +1,11 @@
 name: waslship
-description: A Flutter application
+description: WaslShip Flutter Application
 publish_to: "none"
+
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.6.0 <4.0.0"
+  sdk: ^3.10.0
 
 dependencies:
   flutter:
@@ -19,14 +20,12 @@ dependencies:
   dio: ^5.9.0
   retrofit: ^4.7.2
   json_annotation: ^4.9.0
+  freezed_annotation: ^3.1.0
   internet_connection_checker_plus: ^2.7.2
 
   # State Management
-  flutter_riverpod: ^3.0.3
-  hooks_riverpod: ^3.0.3
-  flutter_hooks: ^0.21.3+1
-  equatable: ^2.0.7
-  fpdart: ^1.1.1
+  flutter_riverpod: ^2.6.1
+  flutter_hooks: ^0.21.3
 
   # Storage
   shared_preferences: ^2.5.3
@@ -34,7 +33,7 @@ dependencies:
 
   # Images
   cached_network_image: ^3.4.1
-  flutter_svg: ^2.2.0
+  flutter_svg: ^2.2.1
 
   # UI
   skeletonizer: ^2.1.0+1
@@ -45,7 +44,7 @@ dependencies:
   # Environment
   flutter_dotenv: ^6.0.0
 
-  # Utils
+  # Utilities
   logger: ^2.6.1
   path_provider: ^2.1.5
   url_launcher: ^6.3.2
@@ -54,6 +53,7 @@ dependencies:
   easy_localization: ^3.0.8
 
   flutter_native_splash: ^2.4.6
+  equatable: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -62,9 +62,14 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
   build_runner: ^2.5.4
-  auto_route_generator: ^10.0.1
-  retrofit_generator: ^10.0.2
-  json_serializable: ^6.9.5
+
+  freezed: ^3.2.3
+
+  json_serializable: ^6.11.1
+
+  retrofit_generator: ^10.0.1
+
+  auto_route_generator: ^10.2.4
 
 flutter:
   uses-material-design: true

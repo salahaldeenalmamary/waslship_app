@@ -1,16 +1,16 @@
 targets:
   $default:
     builders:
-      retrofit_generator:retrofit_generator:
+      freezed:
         enabled: true
 
-      auto_route_generator:auto_route_generator:
+      retrofit_generator|retrofit_generator:
         enabled: true
 
-      auto_route_generator:auto_router_generator:
+      auto_route_generator|auto_route_generator:
         enabled: true
 
-      source_gen:combining_builder:
+      source_gen|combining_builder:
         options:
           ignore_for_file:
             - literal_only_boolean_expressions
