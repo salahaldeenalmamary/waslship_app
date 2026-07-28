@@ -195,15 +195,7 @@ class LoginPage extends HookConsumerWidget {
                     textAlign: TextAlign.right,
                     obscureText: !showPassword.value,
                     textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) => _handleLogin(
-                      ref,
-                      formKey,
-                      loginMethod.value,
-                      emailController.text,
-                      phoneController.text,
-                      passwordController.text,
-                      rememberMe.value,
-                    ),
+
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'يرجى إدخال كلمة المرور';
@@ -304,12 +296,9 @@ class LoginPage extends HookConsumerWidget {
                       phoneController.text,
                       passwordController.text,
                       rememberMe.value,
+                      context,
                     ),
-                    loadingMessage: 'جاري تسجيل الدخول...',
                     successMessage: 'تم تسجيل الدخول بنجاح',
-                    onSuccess: () {
-                      context.router.replace(const AppShellRoute());
-                    },
                   ),
                   const SizedBox(height: 24),
 
@@ -430,7 +419,7 @@ class LoginPage extends HookConsumerWidget {
   // Business Logic
   // ============================================
 
-  Future<Result<LoginResponseDto>> _handleLogin(
+  Future<Result<LoginResponseDto?>> _handleLogin(
     WidgetRef ref,
     GlobalKey<FormState> formKey,
     LoginMethod loginMethod,
@@ -438,18 +427,19 @@ class LoginPage extends HookConsumerWidget {
     String phone,
     String password,
     bool rememberMe,
+    BuildContext context,
   ) async {
     // Dismiss keyboard
     FocusManager.instance.primaryFocus?.unfocus();
 
     // Validate form
     if (!(formKey.currentState?.validate() ?? false)) {
-      return Result.err('يرجى تصحيح الأخطاء في النموذج');
+      return const Result.err('يرجى تصحيح الأخطاء في النموذج');
     }
 
     // Create login request based on method
     final request = LoginRequestDto(
-      email: loginMethod == LoginMethod.email ? email.trim() : phone,
+      emailOrPhone: loginMethod == LoginMethod.email ? email.trim() : phone,
       password: password,
       deviceToken: null,
       deviceType: 'android',
@@ -462,7 +452,7 @@ class LoginPage extends HookConsumerWidget {
     result.fold(
       onOk: (_) {
         if (rememberMe) {
-          // TODO: Save credentials securely
+          context.router.replace(const AppShellRoute());
         }
       },
       onErr: (_, __) {},
@@ -519,7 +509,7 @@ class LoginPage extends HookConsumerWidget {
           ),
         ),
         Text(
-          'WaslShip Elite',
+          'WaslShip',
           style: textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w500,
             color: const Color(0xFFC5A059),

@@ -2,7 +2,6 @@ import 'dart:async';
 import '../../app/providers/auth/auth_notifier.dart';
 import '../../app/providers/auth/auth_providers.dart';
 import '../../app/providers/auth/auth_state.dart';
-import '../../data/network/network.dart';
 import '../../data/repositories/auth/models/auth_dtos.dart';
 import '../../imports/imports.dart';
 
@@ -224,7 +223,6 @@ class OtpPage extends HookConsumerWidget {
                     authState,
                   );
                 },
-                loadingMessage: 'جاري التحقق...',
                 successMessage: 'تم التحقق بنجاح',
                 onSuccess: () {
                   _handleSuccess(context, authState, otpController, email);
@@ -340,7 +338,7 @@ class OtpPage extends HookConsumerWidget {
     isVerifying.value = true;
     errorMessage.value = null;
 
-    final request = VerifyOtpRequestDto(email: otpEmail, otp: otpCode);
+    final request = VerifyOtpRequestDto(phoneNumber: otpEmail, otp: otpCode);
 
     final result = await authNotifier.verifyOtp(request);
 
@@ -357,7 +355,7 @@ class OtpPage extends HookConsumerWidget {
     );
   }
 
-  Future<Result<MessageResponseDto>> _handleVerifyButton(
+  Future<Result<MessageResponseDto?>> _handleVerifyButton(
     String otpCode,
     String otpEmail,
     AuthNotifier authNotifier,
@@ -373,7 +371,7 @@ class OtpPage extends HookConsumerWidget {
       return const Result.err('البريد الإلكتروني غير متوفر');
     }
 
-    final request = VerifyOtpRequestDto(email: otpEmail, otp: otpCode);
+    final request = VerifyOtpRequestDto(phoneNumber: otpEmail, otp: otpCode);
 
     return authNotifier.verifyOtp(request);
   }
@@ -388,7 +386,7 @@ class OtpPage extends HookConsumerWidget {
   ) async {
     if (otpEmail.isEmpty) return;
 
-    final request = ResendOtpRequestDto(email: otpEmail);
+    final request = ResendOtpRequestDto(phoneNumber: otpEmail);
     final result = await authNotifier.resendOtp(request);
 
     result.fold(

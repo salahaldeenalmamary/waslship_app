@@ -1,5 +1,3 @@
-// File: lib/features/payment/data/dto/payment_dtos.dart
-
 import 'package:json_annotation/json_annotation.dart';
 
 part 'payment_dtos.g.dart';

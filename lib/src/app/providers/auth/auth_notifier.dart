@@ -9,7 +9,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   AuthNotifier(this._authRepo) : super(const AuthState());
 
-  Future<Result<LoginResponseDto>> login(LoginRequestDto request) async {
+  Future<Result<LoginResponseDto?>> login(LoginRequestDto request) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
     final result = await _authRepo.login(request);
@@ -18,9 +18,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       onOk: (response) {
         state = state.copyWith(
           status: AuthStatus.authenticated,
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
-          user: response.user,
+          accessToken: response.data?.accessToken,
+          refreshToken: response.data?.refreshToken,
+          user: response.data?.user,
           errorMessage: null,
           successMessage: 'تم تسجيل الدخول بنجاح',
         );
@@ -30,13 +30,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   // ============================================
   // Register
   // ============================================
-  Future<Result<MessageResponseDto>> register(
+  Future<Result<MessageResponseDto?>> register(
     RegisterRequestDto request,
   ) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
@@ -56,13 +56,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   // ============================================
   // Verify OTP
   // ============================================
-  Future<Result<MessageResponseDto>> verifyOtp(
+  Future<Result<MessageResponseDto?>> verifyOtp(
     VerifyOtpRequestDto request,
   ) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
@@ -82,13 +82,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   // ============================================
   // Resend OTP
   // ============================================
-  Future<Result<OtpResponseDto>> resendOtp(ResendOtpRequestDto request) async {
+  Future<Result<OtpResponseDto?>> resendOtp(ResendOtpRequestDto request) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
     final result = await _authRepo.resendOtp(request);
@@ -106,13 +106,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   // ============================================
   // Forgot Password
   // ============================================
-  Future<Result<MessageResponseDto>> forgotPassword(
+  Future<Result<MessageResponseDto?>> forgotPassword(
     ForgotPasswordRequestDto request,
   ) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
@@ -133,13 +133,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   // ============================================
   // Reset Password
   // ============================================
-  Future<Result<MessageResponseDto>> resetPassword(
+  Future<Result<MessageResponseDto?>> resetPassword(
     ResetPasswordRequestDto request,
   ) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
@@ -159,13 +159,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   // ============================================
   // Refresh Token
   // ============================================
-  Future<Result<TokenResponseDto>> refreshToken(
+  Future<Result<TokenResponseDto?>> refreshToken(
     RefreshTokenRequestDto request,
   ) async {
     final result = await _authRepo.refreshToken(request);
@@ -174,8 +174,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
       onOk: (response) {
         state = state.copyWith(
           status: AuthStatus.authenticated,
-          accessToken: response.accessToken,
-          refreshToken: response.refreshToken,
+          accessToken: response.data?.accessToken,
+          refreshToken: response.data?.refreshToken,
           errorMessage: null,
         );
       },
@@ -190,13 +190,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   // ============================================
   // Logout
   // ============================================
-  Future<Result<MessageResponseDto>> logout() async {
+  Future<Result<MessageResponseDto?>> logout() async {
     state = state.copyWith(status: AuthStatus.loading);
 
     const request = LogoutRequestDto();
@@ -205,7 +205,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // Always reset state regardless of API result
     state = const AuthState();
 
-    return result;
+    return result.toDataResult();
   }
 
   void clearError() {

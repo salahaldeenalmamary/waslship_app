@@ -1,5 +1,4 @@
 import '../../app/providers/auth/auth_providers.dart';
-import '../../data/network/network.dart';
 import '../../data/repositories/auth/models/auth_dtos.dart';
 import '../../imports/imports.dart';
 
@@ -95,11 +94,11 @@ class ForgotPasswordPage extends HookConsumerWidget {
                       );
                     }
                     final request = ForgotPasswordRequestDto(
-                      email: emailController.text.trim(),
+                      emailOrPhone: emailController.text.trim(),
                     );
                     return authNotifier.forgotPassword(request);
                   },
-                  loadingMessage: 'جاري الإرسال...',
+
                   successMessage: 'تم إرسال رمز التحقق',
                   onSuccess: () => context.router.push(
                     OtpRoute(email: emailController.text.trim()),

@@ -244,7 +244,6 @@ class ResetPasswordPage extends HookConsumerWidget {
 
                     return authNotifier.resetPassword(request);
                   },
-                  loadingMessage: 'جاري تعيين كلمة المرور...',
                   successMessage: 'تم تعيين كلمة المرور بنجاح',
                   onSuccess: () {
                     context.router.replaceAll([const LoginRoute()]);

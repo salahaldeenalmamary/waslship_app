@@ -1,8 +1,4 @@
-// File: lib/core/widgets/async_button.dart
-
-import '../../../data/network/network.dart';
 import '../../../imports/imports.dart';
-import 'toast/app_toast.dart';
 
 /// A button that handles async operations with built-in loading, error, and success states
 class AsyncButton extends StatefulWidget {
@@ -17,12 +13,6 @@ class AsyncButton extends StatefulWidget {
 
   /// Optional success message to show via toast
   final String? successMessage;
-
-  /// Optional loading message for the loading dialog
-  final String? loadingMessage;
-
-  /// Whether to show loading dialog (defaults to true)
-  final bool showLoadingDialog;
 
   /// Whether to show success toast (defaults to true)
   final bool showSuccessToast;
@@ -57,8 +47,6 @@ class AsyncButton extends StatefulWidget {
     required this.onPressed,
     this.icon,
     this.successMessage,
-    this.loadingMessage,
-    this.showLoadingDialog = true,
     this.showSuccessToast = true,
     this.showErrorToast = true,
     this.onSuccess,
@@ -77,8 +65,6 @@ class AsyncButton extends StatefulWidget {
     required this.onPressed,
     this.icon,
     this.successMessage,
-    this.loadingMessage,
-    this.showLoadingDialog = true,
     this.showSuccessToast = true,
     this.showErrorToast = true,
     this.onSuccess,
@@ -97,8 +83,6 @@ class AsyncButton extends StatefulWidget {
     required this.onPressed,
     this.icon,
     this.successMessage,
-    this.loadingMessage,
-    this.showLoadingDialog = true,
     this.showSuccessToast = true,
     this.showErrorToast = true,
     this.onSuccess,
@@ -117,8 +101,6 @@ class AsyncButton extends StatefulWidget {
     required this.onPressed,
     this.icon,
     this.successMessage,
-    this.loadingMessage,
-    this.showLoadingDialog = true,
     this.showSuccessToast = true,
     this.showErrorToast = true,
     this.onSuccess,
@@ -128,6 +110,24 @@ class AsyncButton extends StatefulWidget {
     this.height,
     this.enabled = true,
     this.type = AsyncButtonType.text,
+  });
+
+  /// Icon button constructor
+  const AsyncButton.icon({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.successMessage,
+    this.showSuccessToast = true,
+    this.showErrorToast = true,
+    this.onSuccess,
+    this.onError,
+    this.style,
+    this.width,
+    this.height,
+    this.enabled = true,
+    this.type = AsyncButtonType.elevated,
   });
 
   @override
@@ -144,26 +144,14 @@ class _AsyncButtonState extends State<AsyncButton> {
 
     setState(() => _isLoading = true);
 
-    // Show loading dialog
-    if (widget.showLoadingDialog && widget.loadingMessage != null) {
-      _showLoadingDialog();
-    }
-
     try {
       final result = await widget.onPressed();
-
-      // Dismiss loading dialog
-      if (widget.showLoadingDialog && widget.loadingMessage != null) {
-        if (mounted) {
-          Navigator.of(context, rootNavigator: true).pop();
-        }
-      }
 
       if (!mounted) return;
 
       setState(() => _isLoading = false);
 
-      // Handle result
+      // Handle result using fold
       result.fold(
         onOk: (_) {
           if (widget.showSuccessToast && widget.successMessage != null) {
@@ -171,7 +159,7 @@ class _AsyncButtonState extends State<AsyncButton> {
           }
           widget.onSuccess?.call();
         },
-        onErr: (message, _) {
+        onErr: (message, cause) {
           if (widget.showErrorToast) {
             AppToast.error(context, message: message);
           }
@@ -179,13 +167,6 @@ class _AsyncButtonState extends State<AsyncButton> {
         },
       );
     } catch (e) {
-      // Dismiss loading dialog
-      if (widget.showLoadingDialog && widget.loadingMessage != null) {
-        if (mounted) {
-          Navigator.of(context, rootNavigator: true).pop();
-        }
-      }
-
       if (!mounted) return;
 
       setState(() => _isLoading = false);
@@ -195,38 +176,6 @@ class _AsyncButtonState extends State<AsyncButton> {
       }
       widget.onError?.call('حدث خطأ غير متوقع');
     }
-  }
-
-  void _showLoadingDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => PopScope(
-        canPop: false,
-        child: Center(
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CircularProgressIndicator(),
-                  const SizedBox(height: 16),
-                  Text(
-                    widget.loadingMessage!,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   @override

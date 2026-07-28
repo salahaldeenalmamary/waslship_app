@@ -232,7 +232,7 @@ class AddLocationPage extends HookConsumerWidget {
                           return notifier.addAddress(request);
                         }
                       },
-                      loadingMessage: 'جاري الحفظ...',
+
                       successMessage: isEditing
                           ? 'تم تحديث العنوان بنجاح'
                           : 'تمت إضافة العنوان بنجاح',

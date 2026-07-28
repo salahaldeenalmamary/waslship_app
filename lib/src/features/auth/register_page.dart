@@ -200,7 +200,7 @@ class RegisterPage extends HookConsumerWidget {
 
                     return authNotifier.register(request);
                   },
-                  loadingMessage: 'جاري إنشاء الحساب...',
+
                   successMessage: 'تم إنشاء الحساب بنجاح',
                   onSuccess: () {
                     //  context.router.push(const OtpRoute());

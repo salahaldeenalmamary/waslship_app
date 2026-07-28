@@ -23,32 +23,32 @@ class SettingsPage extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     final options = [
-      _SettingsOption(
+      const _SettingsOption(
         id: 'profile',
         label: 'المعلومات الشخصية',
         icon: Icons.person_outline_rounded,
       ),
-      _SettingsOption(
+      const _SettingsOption(
         id: 'locations',
         label: 'العناوين المحفوظة',
         icon: Icons.location_on_outlined,
       ),
-      _SettingsOption(
+      const _SettingsOption(
         id: 'notifications',
         label: 'الإشعارات',
         icon: Icons.notifications_none_rounded,
       ),
-      _SettingsOption(
+      const _SettingsOption(
         id: 'security',
         label: 'الأمان والخصوصية',
         icon: Icons.shield_outlined,
       ),
-      _SettingsOption(
+      const _SettingsOption(
         id: 'language',
         label: 'اللغة',
         icon: Icons.language_rounded,
       ),
-      _SettingsOption(
+      const _SettingsOption(
         id: 'support',
         label: 'الدعم والمساعدة',
         icon: Icons.help_outline_rounded,

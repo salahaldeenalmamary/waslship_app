@@ -1,3 +1,5 @@
+import 'api_response.dart';
+
 /// A sealed result type representing either a successful [Ok] value
 /// or an [Err] failure.
 sealed class Result<T> {
@@ -59,4 +61,10 @@ final class Err<T> extends Result<T> {
 
   @override
   String toString() => 'Err($message)';
+}
+
+extension ApiResponseResultExt<T> on Result<ApiResponse<T>> {
+  Result<T?> toDataResult() {
+    return map((apiResponse) => apiResponse.data);
+  }
 }

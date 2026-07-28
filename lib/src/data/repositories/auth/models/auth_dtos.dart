@@ -4,13 +4,13 @@ part 'auth_dtos.g.dart';
 
 @JsonSerializable()
 class LoginRequestDto {
-  final String email;
+  final String emailOrPhone;
   final String password;
   final String? deviceToken;
   final String? deviceType;
 
   const LoginRequestDto({
-    required this.email,
+    required this.emailOrPhone,
     required this.password,
     this.deviceToken,
     this.deviceType,
@@ -48,10 +48,10 @@ class RegisterRequestDto {
 
 @JsonSerializable()
 class VerifyOtpRequestDto {
-  final String email;
+  final String phoneNumber;
   final String otp;
 
-  const VerifyOtpRequestDto({required this.email, required this.otp});
+  const VerifyOtpRequestDto({required this.phoneNumber, required this.otp});
 
   factory VerifyOtpRequestDto.fromJson(Map<String, dynamic> json) =>
       _$VerifyOtpRequestDtoFromJson(json);
@@ -61,9 +61,9 @@ class VerifyOtpRequestDto {
 
 @JsonSerializable()
 class ResendOtpRequestDto {
-  final String email;
+  final String phoneNumber;
 
-  const ResendOtpRequestDto({required this.email});
+  const ResendOtpRequestDto({required this.phoneNumber});
 
   factory ResendOtpRequestDto.fromJson(Map<String, dynamic> json) =>
       _$ResendOtpRequestDtoFromJson(json);
@@ -73,9 +73,9 @@ class ResendOtpRequestDto {
 
 @JsonSerializable()
 class ForgotPasswordRequestDto {
-  final String email;
+  final String emailOrPhone;
 
-  const ForgotPasswordRequestDto({required this.email});
+  const ForgotPasswordRequestDto({required this.emailOrPhone});
 
   factory ForgotPasswordRequestDto.fromJson(Map<String, dynamic> json) =>
       _$ForgotPasswordRequestDtoFromJson(json);
