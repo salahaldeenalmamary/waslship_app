@@ -1,3 +1,5 @@
+import 'package:waslship/src/app/providers/auth/auth_state.dart';
+
 import '../../app/providers/auth/auth_providers.dart';
 import '../../data/repositories/auth/models/auth_dtos.dart';
 import '../../imports/imports.dart';
@@ -38,22 +40,6 @@ class LoginPage extends HookConsumerWidget {
       });
       return null;
     }, []);
-
-    // Clear error when fields change
-    useEffect(
-      () {
-        if (authState.errorMessage != null) {
-          authNotifier.clearError();
-        }
-        return null;
-      },
-      [
-        emailController.text,
-        phoneController.text,
-        passwordController.text,
-        loginMethod.value,
-      ],
-    );
 
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
@@ -451,7 +437,11 @@ class LoginPage extends HookConsumerWidget {
     // Handle remember me
     result.fold(
       onOk: (_) {
-        if (rememberMe) {
+        if (ref.read(authNotifierProvider).status.isOtpSent) {
+          context.router.push(
+            OtpRoute(email: ref.read(authNotifierProvider).phone ?? email),
+          );
+        } else if (ref.read(authNotifierProvider).status.isAuthenticated) {
           context.router.replace(const AppShellRoute());
         }
       },

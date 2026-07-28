@@ -13,7 +13,7 @@ class ApiResultAdapter<T> extends CallAdapter<Future<T>, Future<Result<T>>> {
       final response = await call();
 
       // Check if response is an ApiResponse wrapper
-      if (response is ApiResponse<T>) {
+      if (response is ApiResponse) {
         return _handleApiResponse(response);
       }
 
@@ -33,10 +33,17 @@ class ApiResultAdapter<T> extends CallAdapter<Future<T>, Future<Result<T>>> {
     }
   }
 
-  Result<T> _handleApiResponse(ApiResponse<T> apiResponse) {
+  Result<T> _handleApiResponse(ApiResponse apiResponse) {
     if (apiResponse.success) {
       if (apiResponse.data != null) {
-        return Result.ok(apiResponse.data as T);
+        if (apiResponse.data is T) {
+          final data = apiResponse.data as T;
+          return Result.ok(data);
+        } else if (apiResponse is T) {
+          return Result.ok(apiResponse as T);
+        } else {
+          return Result.err('Failed to cast response data:');
+        }
       } else {
         return Result.err('No data received', cause: null);
       }
@@ -51,7 +58,15 @@ class ApiResultAdapter<T> extends CallAdapter<Future<T>, Future<Result<T>>> {
 
     if (success) {
       final data = response['data'];
-      return Result.ok(data as T);
+      if (data != null) {
+        try {
+          return Result.ok(data as T);
+        } catch (e) {
+          return Result.err('Failed to cast response data: $e', cause: e);
+        }
+      } else {
+        return Result.err('No data received', cause: null);
+      }
     } else {
       final message = response['message'] as String? ?? 'حدث خطأ غير معروف';
       final errors = response['errors'];
@@ -85,6 +100,14 @@ class ApiResultAdapter<T> extends CallAdapter<Future<T>, Future<Result<T>>> {
             return firstError.first.toString();
           }
           return firstError.toString();
+        }
+      }
+
+      // Check for data in error response
+      if (responseData.containsKey('data') && responseData['data'] != null) {
+        final data = responseData['data'];
+        if (data is Map<String, dynamic> && data.containsKey('message')) {
+          return data['message'].toString();
         }
       }
     }

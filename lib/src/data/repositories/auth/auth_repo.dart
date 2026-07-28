@@ -23,7 +23,7 @@ abstract class AuthRepo {
 
   /// Verify a one-time password for account activation
   @POST('/auth/verify-otp')
-  Future<Result<ApiResponse<MessageResponseDto>>> verifyOtp(
+  Future<Result<ApiResponse<LoginResponseDto>>> verifyOtp(
     @Body() VerifyOtpRequestDto request,
   );
 

@@ -224,9 +224,6 @@ class OtpPage extends HookConsumerWidget {
                   );
                 },
                 successMessage: 'تم التحقق بنجاح',
-                onSuccess: () {
-                  _handleSuccess(context, authState, otpController, email);
-                },
               ),
               const SizedBox(height: 24),
 
@@ -338,7 +335,10 @@ class OtpPage extends HookConsumerWidget {
     isVerifying.value = true;
     errorMessage.value = null;
 
-    final request = VerifyOtpRequestDto(phoneNumber: otpEmail, otp: otpCode);
+    final request = VerifyOtpRequestDto(
+      phoneNumber: otpEmail,
+      otpCode: otpCode,
+    );
 
     final result = await authNotifier.verifyOtp(request);
 
@@ -346,7 +346,13 @@ class OtpPage extends HookConsumerWidget {
 
     result.fold(
       onOk: (_) {
-        _handleSuccess(context, authState, otpController, email);
+        if (authState.status.isPasswordResetSent) {
+          context.router.replace(ResetPasswordRoute(email: email));
+        } else if (authState.status.isOtpVerified) {
+          context.router.replaceAll([const LoginRoute()]);
+        } else if (authState.status.isAuthenticated) {
+          context.router.replaceAll([const LoginRoute()]);
+        }
       },
       onErr: (message, _) {
         errorMessage.value = message;
@@ -355,7 +361,7 @@ class OtpPage extends HookConsumerWidget {
     );
   }
 
-  Future<Result<MessageResponseDto?>> _handleVerifyButton(
+  Future<Result<LoginResponseDto?>> _handleVerifyButton(
     String otpCode,
     String otpEmail,
     AuthNotifier authNotifier,
@@ -371,7 +377,10 @@ class OtpPage extends HookConsumerWidget {
       return const Result.err('البريد الإلكتروني غير متوفر');
     }
 
-    final request = VerifyOtpRequestDto(phoneNumber: otpEmail, otp: otpCode);
+    final request = VerifyOtpRequestDto(
+      phoneNumber: otpEmail,
+      otpCode: otpCode,
+    );
 
     return authNotifier.verifyOtp(request);
   }
@@ -403,24 +412,5 @@ class OtpPage extends HookConsumerWidget {
         errorMessage.value = message;
       },
     );
-  }
-
-  void _handleSuccess(
-    BuildContext context,
-    AuthState authState,
-    TextEditingController otpController,
-    String email,
-  ) {
-    // Clear OTP field
-    otpController.clear();
-
-    // Navigate based on context
-    if (authState.status == AuthStatus.passwordResetSent) {
-      context.router.replace(ResetPasswordRoute(email: email));
-    } else if (authState.status == AuthStatus.otpVerified) {
-      context.router.replaceAll([const LoginRoute()]);
-    } else {
-      context.router.maybePop();
-    }
   }
 }

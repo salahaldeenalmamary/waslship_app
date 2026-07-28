@@ -49,9 +49,9 @@ class RegisterRequestDto {
 @JsonSerializable()
 class VerifyOtpRequestDto {
   final String phoneNumber;
-  final String otp;
+  final String otpCode;
 
-  const VerifyOtpRequestDto({required this.phoneNumber, required this.otp});
+  const VerifyOtpRequestDto({required this.phoneNumber, required this.otpCode});
 
   factory VerifyOtpRequestDto.fromJson(Map<String, dynamic> json) =>
       _$VerifyOtpRequestDtoFromJson(json);
@@ -139,12 +139,21 @@ class LoginResponseDto {
   final int? expiresIn;
   final UserDto? user;
 
+  final bool? requiresOtp;
+  final String? phoneNumber;
+  final String? otpExpiry;
+  final String? otpCode;
+
   const LoginResponseDto({
     required this.accessToken,
     required this.refreshToken,
     required this.tokenType,
     required this.expiresIn,
     required this.user,
+    this.requiresOtp,
+    this.phoneNumber,
+    this.otpExpiry,
+    this.otpCode,
   });
 
   factory LoginResponseDto.fromJson(Map<String, dynamic> json) =>
@@ -155,12 +164,12 @@ class LoginResponseDto {
 
 @JsonSerializable()
 class UserDto {
-  final int id;
+  final String id;
   final String? name;
   final String? email;
   final String? phone;
   final String? userType;
-  final bool isVerified;
+  final bool? isVerified;
   final DateTime? emailVerifiedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;

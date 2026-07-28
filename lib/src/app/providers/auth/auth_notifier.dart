@@ -17,10 +17,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     result.fold(
       onOk: (response) {
         state = state.copyWith(
-          status: AuthStatus.authenticated,
+          status: response.data?.requiresOtp ?? false
+              ? AuthStatus.otpSent
+              : AuthStatus.authenticated,
           accessToken: response.data?.accessToken,
           refreshToken: response.data?.refreshToken,
           user: response.data?.user,
+          phone: response.data?.phoneNumber,
           errorMessage: null,
           successMessage: 'تم تسجيل الدخول بنجاح',
         );
@@ -62,7 +65,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   // ============================================
   // Verify OTP
   // ============================================
-  Future<Result<MessageResponseDto?>> verifyOtp(
+  Future<Result<LoginResponseDto?>> verifyOtp(
     VerifyOtpRequestDto request,
   ) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
@@ -74,6 +77,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = state.copyWith(
           status: AuthStatus.otpVerified,
           errorMessage: null,
+          accessToken: response.data?.accessToken,
+          refreshToken: response.data?.refreshToken,
+          user: response.data?.user,
+          phone: response.data?.phoneNumber,
           successMessage: 'تم التحقق بنجاح',
         );
       },
