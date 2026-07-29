@@ -1,16 +1,51 @@
+// File: lib/data/network/dio_provider.dart
+
 import 'dart:io';
-
+import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../imports/imports.dart';
-import '../../data/repositories/auth/models/auth_dtos.dart';
-import 'auth/auth_providers.dart';
+import '../config/app_config.dart';
+import '../services/secure_storage_service.dart';
 
 // ============================================
-// Dio Provider
+// Base Dio (No Auth Interceptor)
 // ============================================
 
-/// Main Dio instance provider
+/// Base Dio instance WITHOUT auth interceptor (to avoid circular dependency)
+final baseDioProvider = Provider<Dio>((ref) {
+  final dio = Dio(
+    BaseOptions(
+      baseUrl: AppConfig.baseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(seconds: 30),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      validateStatus: (status) {
+        return status != null && status < 500;
+      },
+    ),
+  );
+
+  _configureDevSsl(dio);
+
+  dio.interceptors.addAll([
+    ErrorInterceptor(),
+    if (kDebugMode) LogInterceptor(requestBody: true, responseBody: true),
+  ]);
+
+  return dio;
+});
+
+// ============================================
+// Main Dio (With Auth Interceptor)
+// ============================================
+
+/// Main Dio instance WITH auth interceptor
 final dioProvider = Provider<Dio>((ref) {
   final dio = Dio(
     BaseOptions(
@@ -27,14 +62,13 @@ final dioProvider = Provider<Dio>((ref) {
       },
     ),
   );
+
   _configureDevSsl(dio);
 
-  // Add interceptors - DON'T use ref.watch inside interceptors
-  // Instead, pass the ref to the interceptor so it can read when needed
   dio.interceptors.addAll([
     AuthInterceptor(ref),
     ErrorInterceptor(),
-    LogInterceptor(requestBody: true, responseBody: true),
+    if (kDebugMode) LogInterceptor(requestBody: true, responseBody: true),
   ]);
 
   return dio;
@@ -56,50 +90,37 @@ class AuthInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _getStoredToken();
+    // Read token directly from secure storage instead of provider
+    final token = await _getTokenFromStorage();
 
-    // Add authorization header if token exists
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
 
-    // Add language header
     options.headers['Accept-Language'] = 'ar';
-
     handler.next(options);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    // Handle 401 Unauthorized - try to refresh token
     if (err.response?.statusCode == 401) {
       if (!_isRefreshing) {
         _isRefreshing = true;
         try {
-          // Read from provider only when needed (not during initialization)
-          final notifier = _ref.read(authNotifierProvider.notifier);
-          final refreshToken = await _getStoredRefreshToken();
+          final refreshToken = await _getRefreshTokenFromStorage();
 
           if (refreshToken != null) {
-            final request = RefreshTokenRequestDto(refreshToken: refreshToken);
-            final result = await notifier.refreshToken(request);
+            final success = await _performTokenRefresh(refreshToken);
 
-            result.fold(
-              onOk: (_) {
-                _isRefreshing = false;
-                // Retry the original request with new token
-                final newToken = _ref.read(authNotifierProvider).accessToken;
-                err.requestOptions.headers['Authorization'] =
-                    'Bearer $newToken';
-                _retryRequest(err.requestOptions, handler);
-              },
-              onErr: (message, _) {
-                _isRefreshing = false;
-                // Refresh failed - logout user
-                notifier.logout();
-                handler.next(err);
-              },
-            );
+            if (success) {
+              _isRefreshing = false;
+              final newToken = await _getTokenFromStorage();
+              err.requestOptions.headers['Authorization'] = 'Bearer $newToken';
+              _retryRequest(err.requestOptions, handler);
+            } else {
+              _isRefreshing = false;
+              handler.next(err);
+            }
           } else {
             _isRefreshing = false;
             handler.next(err);
@@ -116,19 +137,60 @@ class AuthInterceptor extends Interceptor {
     }
   }
 
-  Future<String?> _getStoredToken() async {
+  Future<String?> _getTokenFromStorage() async {
     try {
-      return _ref.read(authNotifierProvider).accessToken;
+      final storage = SecureStorageService.instance;
+      final result = await storage.read('ACCESS_TOKEN');
+      return result.fold((l) => null, (r) => r);
     } catch (e) {
       return null;
     }
   }
 
-  Future<String?> _getStoredRefreshToken() async {
+  Future<String?> _getRefreshTokenFromStorage() async {
     try {
-      return _ref.read(authNotifierProvider).refreshToken;
+      final storage = SecureStorageService.instance;
+      final result = await storage.read('REFRESH_TOKEN');
+      return result.fold((l) => null, (r) => r);
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<bool> _performTokenRefresh(String refreshToken) async {
+    try {
+      // Use a clean Dio instance for refresh (no interceptors)
+      final refreshDio = Dio(
+        BaseOptions(
+          baseUrl: AppConfig.baseUrl,
+          connectTimeout: const Duration(seconds: 30),
+        ),
+      );
+
+      final response = await refreshDio.post(
+        '/auth/refresh-token',
+        data: {'refresh_token': refreshToken},
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final newAccessToken =
+            data['data']?['access_token'] ?? data['access_token'];
+        final newRefreshToken =
+            data['data']?['refresh_token'] ?? data['refresh_token'];
+
+        if (newAccessToken != null) {
+          final storage = SecureStorageService.instance;
+          await storage.write('ACCESS_TOKEN', newAccessToken.toString());
+          if (newRefreshToken != null) {
+            await storage.write('REFRESH_TOKEN', newRefreshToken.toString());
+          }
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -137,8 +199,8 @@ class AuthInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     try {
-      final dio = Dio();
-      final response = await dio.fetch(requestOptions);
+      final retryDio = Dio();
+      final response = await retryDio.fetch(requestOptions);
       handler.resolve(response);
     } catch (e) {
       handler.next(DioException(requestOptions: requestOptions, error: e));
@@ -150,13 +212,11 @@ class AuthInterceptor extends Interceptor {
 // Error Interceptor
 // ============================================
 
-/// Interceptor for global error handling
 class ErrorInterceptor extends Interceptor {
   ErrorInterceptor();
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Handle specific error cases
     switch (err.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
@@ -205,12 +265,6 @@ class ErrorInterceptor extends Interceptor {
           case 500:
             message = 'خطأ في الخادم';
             break;
-          case 502:
-            message = 'خطأ في البوابة';
-            break;
-          case 503:
-            message = 'الخدمة غير متاحة حالياً';
-            break;
           default:
             message = 'حدث خطأ غير متوقع';
         }
@@ -230,124 +284,41 @@ class ErrorInterceptor extends Interceptor {
     handler.next(err);
   }
 
-  /// Extract error message from response data
   String? _extractErrorMessage(dynamic data) {
     if (data == null) return null;
-
     if (data is Map<String, dynamic>) {
-      if (data.containsKey('message')) {
-        return data['message'] as String?;
+      if (data.containsKey('message') && data['message'] != null) {
+        return data['message'].toString();
       }
-      if (data.containsKey('error')) {
-        final error = data['error'];
-        if (error is String) return error;
-        if (error is Map && error.containsKey('message')) {
-          return error['message'] as String?;
-        }
-      }
-      if (data.containsKey('errors')) {
-        final errors = data['errors'];
-        if (errors is Map) {
-          final firstError = errors.values.first;
-          if (firstError is List && firstError.isNotEmpty) {
-            return firstError.first.toString();
-          }
+      if (data.containsKey('errors') && data['errors'] is Map) {
+        final errors = data['errors'] as Map;
+        if (errors.isNotEmpty) {
+          final first = errors.values.first;
+          if (first is List && first.isNotEmpty) return first.first.toString();
+          return first.toString();
         }
       }
     }
-
     return null;
   }
 }
 
 // ============================================
-// Network Interceptor
+// SSL Configuration (Development Only)
 // ============================================
-
-/// Interceptor to check network connectivity
-class NetworkInterceptor extends Interceptor {
-  final Ref _ref;
-
-  NetworkInterceptor(this._ref);
-
-  @override
-  void onRequest(
-    RequestOptions options,
-    RequestInterceptorHandler handler,
-  ) async {
-    final hasConnection = await _ref.read(networkInfoProvider).hasConnection;
-
-    if (!hasConnection) {
-      handler.reject(
-        DioException(
-          requestOptions: options,
-          type: DioExceptionType.connectionError,
-          message: 'لا يوجد اتصال بالإنترنت',
-        ),
-      );
-      return;
-    }
-
-    handler.next(options);
-  }
-}
-
-// ============================================
-// Network Info Provider
-// ============================================
-
-/// Provider to check network connectivity
-final networkInfoProvider = Provider<NetworkInfo>((ref) {
-  return NetworkInfo();
-});
-
-class NetworkInfo {
-  Future<bool> get hasConnection async {
-    return await InternetConnectionService().hasConnection();
-  }
-}
-
-/// Clean Dio instance for token refresh (to avoid interceptor loops)
-final refreshDioProvider = Provider<Dio>((ref) {
-  return Dio(
-    BaseOptions(
-      baseUrl: AppConfig.baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-    ),
-  );
-});
 
 void _configureDevSsl(Dio dio) {
   try {
-    // Create a custom HttpClient that trusts all certificates in development
     final httpClient = HttpClient()
       ..badCertificateCallback = (X509Certificate cert, String host, int port) {
-        // Only bypass SSL for known development hosts
-        const allowedHosts = ['localhost', '10.0.2.2'];
-
-        if (allowedHosts.contains(host)) {
-          debugPrint('🔓 SSL verification bypassed for $host:$port');
-          return true;
-        }
-
-        // Allow local network IPs
-        if (host.startsWith('192.168.') ||
-            host.startsWith('172.16.') ||
-            host.startsWith('10.0.')) {
-          debugPrint(
-            '🔓 SSL verification bypassed for local network: $host:$port',
-          );
-          return true;
-        }
-
-        return false;
+        return host == 'localhost' ||
+            host == '10.0.2.2' ||
+            host.startsWith('192.168.');
       };
 
-    // Set the custom adapter
     dio.httpClientAdapter = IOHttpClientAdapter()
       ..onHttpClientCreate = (_) => httpClient;
   } catch (e) {
-    debugPrint('⚠️ Failed to configure SSL: $e');
+    debugPrint('Failed to configure SSL: $e');
   }
 }

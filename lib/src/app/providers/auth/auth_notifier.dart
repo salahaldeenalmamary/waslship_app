@@ -3,11 +3,53 @@ import '../../../data/network/network.dart';
 import '../../../data/repositories/auth/auth_repo.dart';
 import '../../../data/repositories/auth/models/auth_dtos.dart';
 import 'auth_state.dart';
+import '../../services/secure_storage_service.dart';
+
+const _accessTokenKey = 'ACCESS_TOKEN';
+const _refreshTokenKey = 'REFRESH_TOKEN';
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepo _authRepo;
 
-  AuthNotifier(this._authRepo) : super(const AuthState());
+  AuthNotifier(this._authRepo) : super(const AuthState()) {
+    _init();
+  }
+
+  Future<void> _init() async {
+    final secureStorage = SecureStorageService.instance;
+    final accessReq = await secureStorage.read(_accessTokenKey);
+    final refreshReq = await secureStorage.read(_refreshTokenKey);
+
+    String? accessToken;
+    String? refreshToken;
+
+    accessReq.fold((l) => null, (r) => accessToken = r);
+    refreshReq.fold((l) => null, (r) => refreshToken = r);
+
+    if (accessToken != null) {
+      state = state.copyWith(
+        status: AuthStatus.authenticated,
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      );
+    }
+  }
+
+  Future<void> _saveTokens(String? accessToken, String? refreshToken) async {
+    final secureStorage = SecureStorageService.instance;
+    if (accessToken != null) {
+      await secureStorage.write(_accessTokenKey, accessToken);
+    }
+    if (refreshToken != null) {
+      await secureStorage.write(_refreshTokenKey, refreshToken);
+    }
+  }
+
+  Future<void> _clearTokens() async {
+    final secureStorage = SecureStorageService.instance;
+    await secureStorage.delete(_accessTokenKey);
+    await secureStorage.delete(_refreshTokenKey);
+  }
 
   Future<Result<LoginResponseDto?>> login(LoginRequestDto request) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
@@ -16,12 +58,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     result.fold(
       onOk: (response) {
+        final accessToken = response.data?.accessToken;
+        final refreshToken = response.data?.refreshToken;
+
+        if (accessToken != null) {
+          _saveTokens(accessToken, refreshToken);
+        }
+
         state = state.copyWith(
           status: response.data?.requiresOtp ?? false
               ? AuthStatus.otpSent
               : AuthStatus.authenticated,
-          accessToken: response.data?.accessToken,
-          refreshToken: response.data?.refreshToken,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
           user: response.data?.user,
           phone: response.data?.phoneNumber,
           errorMessage: null,
@@ -74,11 +123,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     result.fold(
       onOk: (response) {
+        final accessToken = response.data?.accessToken;
+        final refreshToken = response.data?.refreshToken;
+
+        if (accessToken != null) {
+          _saveTokens(accessToken, refreshToken);
+        }
+
         state = state.copyWith(
           status: AuthStatus.otpVerified,
           errorMessage: null,
-          accessToken: response.data?.accessToken,
-          refreshToken: response.data?.refreshToken,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
           user: response.data?.user,
           phone: response.data?.phoneNumber,
           successMessage: 'تم التحقق بنجاح',
@@ -179,14 +235,22 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     result.fold(
       onOk: (response) {
+        final accessToken = response.data?.accessToken;
+        final refreshToken = response.data?.refreshToken;
+
+        if (accessToken != null) {
+          _saveTokens(accessToken, refreshToken);
+        }
+
         state = state.copyWith(
           status: AuthStatus.authenticated,
-          accessToken: response.data?.accessToken,
-          refreshToken: response.data?.refreshToken,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
           errorMessage: null,
         );
       },
       onErr: (message, cause) {
+        _clearTokens();
         state = state.copyWith(
           status: AuthStatus.unauthenticated,
           errorMessage: 'فشل تجديد الجلسة، يرجى تسجيل الدخول مرة أخرى',
@@ -210,6 +274,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final result = await _authRepo.logout(request);
 
     // Always reset state regardless of API result
+    await _clearTokens();
     state = const AuthState();
 
     return result.toDataResult();
@@ -228,10 +293,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   void updateAccessToken(String token) {
+    _saveTokens(token, state.refreshToken);
     state = state.copyWith(accessToken: token);
   }
 
   void updateRefreshToken(String token) {
+    _saveTokens(state.accessToken, token);
     state = state.copyWith(refreshToken: token);
   }
 }

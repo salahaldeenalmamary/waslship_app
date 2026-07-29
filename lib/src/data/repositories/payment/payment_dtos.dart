@@ -38,9 +38,9 @@ class InitiationRequestDto {
 
 @JsonSerializable()
 class ExecutePaymentRequestDto {
-  @JsonKey(name: 'deposit_id')
+
   final String depositId;
-  @JsonKey(name: 'payment_method_id')
+
   final String paymentMethodId;
 
   const ExecutePaymentRequestDto({
@@ -56,7 +56,7 @@ class ExecutePaymentRequestDto {
 
 @JsonSerializable()
 class VerifyPaymentRequestDto {
-  @JsonKey(name: 'deposit_id')
+
   final String depositId;
 
   const VerifyPaymentRequestDto({required this.depositId});
@@ -73,11 +73,11 @@ class VerifyPaymentRequestDto {
 
 @JsonSerializable()
 class InitiatePaymentResponseDto {
-  @JsonKey(name: 'depositId')
+
   final String depositId;
-  @JsonKey(name: 'initiatePaymentResult')
+
   final InitiatePaymentResultDto initiatePaymentResult;
-  @JsonKey(name: 'paymentId')
+
   final String? paymentId;
 
   const InitiatePaymentResponseDto({

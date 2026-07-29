@@ -1,28 +1,67 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:waslship/src/app/routing/app_router.gr.dart';
+import '../../data/repositories/payment/payment_dtos.dart';
 import '../widgets/elite_top_bar.dart';
+import 'providers/payment_providers.dart';
 
 @RoutePage()
-class TopUpSuccessPage extends StatelessWidget {
-  const TopUpSuccessPage({super.key, this.onDone});
+class TopUpSuccessPage extends HookConsumerWidget {
+  final String? depositId;
+  final double? amount;
+  final String? transactionId;
 
-  final VoidCallback? onDone;
+  const TopUpSuccessPage({
+    super.key,
+    @queryParam this.depositId,
+    @queryParam this.amount,
+    @queryParam this.transactionId,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+
+    final paymentState = ref.watch(paymentNotifierProvider);
+    final paymentNotifier = ref.read(paymentNotifierProvider.notifier);
+
+    useEffect(() {
+      if (depositId != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final request = VerifyPaymentRequestDto(depositId: depositId!);
+          paymentNotifier.verifyPayment(request);
+        });
+      }
+      return null;
+    }, [depositId]);
+
+    final displayAmount = amount ?? paymentState.amount;
+    final referenceId =
+        transactionId ??
+        paymentState.verificationResult?.transactionId ??
+        paymentState.executionResult?.transactionId ??
+        'N/A';
+    final paymentDate = DateTime.now();
+    final formattedDate =
+        '${paymentDate.day} ${_getMonthName(paymentDate.month)} ${paymentDate.year}';
+
+    // Calculate new balance (example: current + added)
+    const currentBalance = 1250.0;
+    final newBalance = currentBalance + displayAmount;
 
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: const EliteTopBar(title: 'شحن الرصيد', showBack: false),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Success Icon with animated glow
+              // Success Icon
               Container(
                 width: 96,
                 height: 96,
@@ -44,6 +83,8 @@ class TopUpSuccessPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
+
+              // Success Title
               Text(
                 'تمت العملية بنجاح!',
                 style: textTheme.headlineSmall?.copyWith(
@@ -76,7 +117,7 @@ class TopUpSuccessPage extends StatelessWidget {
                   children: [
                     _ReceiptRow(
                       label: 'المبلغ المضاف',
-                      value: '100.00 ر.س',
+                      value: '${displayAmount.toStringAsFixed(2)} ر.س',
                       textTheme: textTheme,
                       colors: colors,
                       highlight: true,
@@ -97,7 +138,7 @@ class TopUpSuccessPage extends StatelessWidget {
                     ),
                     _ReceiptRow(
                       label: 'الرصيد الجديد',
-                      value: '1,350.00 ر.س',
+                      value: '${newBalance.toStringAsFixed(2)} ر.س',
                       textTheme: textTheme,
                       colors: colors,
                       highlight: true,
@@ -105,27 +146,46 @@ class TopUpSuccessPage extends StatelessWidget {
                     const SizedBox(height: 12),
                     _ReceiptRow(
                       label: 'رقم المرجع',
-                      value: '#TRX-00199',
+                      value: '#$referenceId',
                       textTheme: textTheme,
                       colors: colors,
                     ),
                     const SizedBox(height: 6),
                     _ReceiptRow(
                       label: 'التاريخ',
-                      value: '26 يوليو 2026',
+                      value: formattedDate,
                       textTheme: textTheme,
                       colors: colors,
                     ),
+                    if (depositId != null) ...[
+                      const SizedBox(height: 6),
+                      _ReceiptRow(
+                        label: 'رقم الإيداع',
+                        value: depositId!.substring(0, 8) + '...',
+                        textTheme: textTheme,
+                        colors: colors,
+                      ),
+                    ],
                   ],
                 ),
               ),
               const SizedBox(height: 28),
 
+              // Back to Wallet Button
               SizedBox(
                 width: double.infinity,
                 height: 54,
-                child: ElevatedButton(
-                  onPressed: onDone,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    paymentNotifier.resetPayment();
+
+                    context.router.replaceAll([const AppShellRoute()]);
+                  },
+                  icon: const Icon(Icons.account_balance_wallet_rounded),
+                  label: const Text(
+                    'العودة إلى المحفظة',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.primary,
                     foregroundColor: colors.onPrimary,
@@ -133,9 +193,26 @@ class TopUpSuccessPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    'العودة إلى المحفظة',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.share_rounded, size: 18),
+                  label: const Text(
+                    'مشاركة الإيصال',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: colors.primary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    side: BorderSide(color: colors.outlineVariant),
                   ),
                 ),
               ),
@@ -144,6 +221,24 @@ class TopUpSuccessPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _getMonthName(int month) {
+    const months = [
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر',
+    ];
+    return months[month - 1];
   }
 }
 

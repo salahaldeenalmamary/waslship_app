@@ -9,5 +9,5 @@ Future<void> main() async {
 
   FlutterNativeSplash.remove();
 
-  runApp(LocalizationWrapper(child: ProviderScope(child: App())));
+  runApp(LocalizationWrapper(child: ProviderScope(child: App(),)));
 }
