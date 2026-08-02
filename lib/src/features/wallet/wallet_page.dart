@@ -147,7 +147,7 @@ class WalletPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // ── Stats ──────────────────────────────────────────────────
-            Row(
+            const Row(
               children: [
                 Expanded(
                   child: EliteStatCard(
@@ -155,7 +155,7 @@ class WalletPage extends StatelessWidget {
                     value: '12,450 ر.س',
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: EliteStatCard(title: 'المعاملات النشطة', value: '08'),
                 ),
@@ -196,8 +196,8 @@ class WalletPage extends StatelessWidget {
   }
 
   Widget _buildTransactions() {
-    return Column(
-      children: const [
+    return const Column(
+      children: [
         EliteTransactionItem(
           type: EliteTransactionType.income,
           icon: Icons.account_balance_outlined,

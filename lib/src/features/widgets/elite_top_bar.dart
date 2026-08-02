@@ -37,7 +37,7 @@ class EliteTopBar extends StatelessWidget implements PreferredSizeWidget {
       leading: showBack
           ? IconButton(
               icon: Icon(
-                Icons.arrow_forward_ios,
+                Icons.arrow_back_ios,
                 color: colors.onSurface,
                 size: 20,
               ),

@@ -9,14 +9,10 @@ class AppRouter extends RootStackRouter {
 
   @override
   List<AutoRoute> get routes => [
-      AutoRoute(
-      page: SplashRoute.page,
-      path: '/',
-      initial: true,
-    ),
+    AutoRoute(page: SplashRoute.page, path: '/', initial: true),
     // ── Elite Feature ──────────────────────────────────────────────
     // Login is a standalone push before entering the shell
-    AutoRoute(page: LoginRoute.page,),
+    AutoRoute(page: LoginRoute.page),
     AutoRoute(page: RegisterRoute.page),
     AutoRoute(page: ForgotPasswordRoute.page),
     AutoRoute(page: OtpRoute.page),
@@ -38,6 +34,7 @@ class AppRouter extends RootStackRouter {
     AutoRoute(page: NotificationsRoute.page),
     AutoRoute(page: TopUpRoute.page),
     AutoRoute(page: TopUpSuccessRoute.page),
+    AutoRoute(page: PaymentWebViewRoute.page),
     AutoRoute(page: BankTransferRoute.page),
     AutoRoute(page: AddressesRoute.page),
     AutoRoute(page: AddLocationRoute.page),

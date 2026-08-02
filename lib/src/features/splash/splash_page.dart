@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waslship/src/app/routing/app_router.gr.dart';
+
 import '../../app/providers/auth/auth_providers.dart';
 import '../../app/providers/auth/auth_state.dart';
 
@@ -15,76 +16,62 @@ class SplashPage extends ConsumerStatefulWidget {
 
 class _SplashPageState extends ConsumerState<SplashPage>
     with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _scaleAnimation;
-  bool _isNavigated = false;
+  late final AnimationController _controller;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<double> _scaleAnimation;
+
+  bool _canNavigate = false;
+  bool _navigated = false;
+
   @override
   void initState() {
     super.initState();
-    
-    _animationController = AnimationController(
+
+    _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 0.5,
+      end: 1,
+    ).animate(
       CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
+        parent: _controller,
+        curve: Curves.elasticOut,
       ),
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
-      ),
-    );
+    _controller.forward();
 
-    _animationController.forward();
-    _checkAuthAndNavigate();
+    _startSplashTimer();
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _checkAuthAndNavigate() async {
-    // Wait for minimum splash duration
+  Future<void> _startSplashTimer() async {
     await Future.delayed(const Duration(seconds: 2));
 
-    if (!mounted || _isNavigated) return;
+    if (!mounted) return;
 
-    // Read current auth state
-    final authState = ref.read(authNotifierProvider);
+    _canNavigate = true;
 
-    // Check if still initializing
-    if (authState.status == AuthStatus.initial) {
-     ref.listenManual(
-        authNotifierProvider,
-        (prev, next) {
-          if (next.status != AuthStatus.initial) {
-        
-            if (mounted && !_isNavigated) {
-              _navigateBasedOnAuth(next);
-            }
-          }
-        },
-      );
-    } else {
-      // Already initialized, navigate immediately
-      _navigateBasedOnAuth(authState);
-    }
+    _tryNavigate(ref.read(authNotifierProvider));
   }
 
-  void _navigateBasedOnAuth(AuthState authState) {
-    if (!mounted || _isNavigated) return;
-    _isNavigated = true;
+  void _tryNavigate(AuthState state) {
+    if (!_canNavigate || _navigated || !mounted) return;
 
-    if (authState.status == AuthStatus.authenticated) {
+    if (state.status == AuthStatus.initial) {
+      return;
+    }
+
+    _navigated = true;
+
+    if (state.status == AuthStatus.authenticated) {
       context.router.replace(const AppShellRoute());
     } else {
       context.router.replace(const LoginRoute());
@@ -92,7 +79,20 @@ class _SplashPageState extends ConsumerState<SplashPage>
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    ref.listen<AuthState>(
+      authNotifierProvider,
+      (_, next) {
+        _tryNavigate(next);
+      },
+    );
+
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -100,8 +100,8 @@ class _SplashPageState extends ConsumerState<SplashPage>
       backgroundColor: colors.surface,
       body: Center(
         child: AnimatedBuilder(
-          animation: _animationController,
-          builder: (context, child) {
+          animation: _controller,
+          builder: (_, child) {
             return FadeTransition(
               opacity: _fadeAnimation,
               child: ScaleTransition(
@@ -113,7 +113,6 @@ class _SplashPageState extends ConsumerState<SplashPage>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo
               Container(
                 width: 100,
                 height: 100,
@@ -122,7 +121,7 @@ class _SplashPageState extends ConsumerState<SplashPage>
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: colors.primary.withOpacity(0.3),
+                      color: colors.primary.withOpacity(.3),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     ),
@@ -135,8 +134,6 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 ),
               ),
               const SizedBox(height: 24),
-
-              // App Name
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -173,8 +170,6 @@ class _SplashPageState extends ConsumerState<SplashPage>
                 ),
               ),
               const SizedBox(height: 48),
-
-        
               SizedBox(
                 width: 24,
                 height: 24,

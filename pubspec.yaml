@@ -41,6 +41,8 @@ dependencies:
   flutter_animate: ^4.5.2
   smooth_page_indicator: ^1.2.1
   pin_code_fields: ^8.0.1 
+  webview_flutter: ^4.10.0
+
 
   # Environment
   flutter_dotenv: ^6.0.0

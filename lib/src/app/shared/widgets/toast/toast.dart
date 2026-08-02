@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../shared.dart';
 
-/// Enum for toast positions. 
+/// Enum for toast positions.
 enum ToastPosition { top, bottom }
 
 /// The gap between stack of cards.
@@ -10,9 +10,8 @@ int gapBetweenCard = 15;
 /// Calculate position of old cards based on current position.
 double calculatePosition(List<ToastBar> toastBars, ToastBar self) {
   if (toastBars.isNotEmpty && self != toastBars.last) {
-    final box =
-        self.info.key.currentContext?.findRenderObject() as RenderBox?;
-    if (box != null) {    
+    final box = self.info.key.currentContext?.findRenderObject() as RenderBox?;
+    if (box != null) {
       return gapBetweenCard * (toastBars.length - toastBars.indexOf(self) - 1);
     }
   }
@@ -61,9 +60,7 @@ class ToastBar {
     this.animationDuration = const Duration(milliseconds: 700),
     this.autoDismiss = false,
     this.animationCurve,
-  }) : assert(
-          toastDuration.inMilliseconds > animationDuration.inMilliseconds,
-        );
+  }) : assert(toastDuration.inMilliseconds > animationDuration.inMilliseconds);
 
   /// Remove individual toastBars on dismiss.
   void remove() {
@@ -89,7 +86,7 @@ class ToastBar {
         getscaleFactor: () => calculateScaleFactor(_toastBars, this),
         snackbarDuration: toastDuration,
         onRemove: remove,
-        child: builder.call(context),
+        child: Builder(builder: builder),
       ),
     );
 
@@ -112,10 +109,7 @@ class SnackBarInfo {
   final GlobalKey<RawToastState> key;
   final DateTime createdAt;
 
-  SnackBarInfo({
-    required this.key,
-    required this.createdAt,
-  });
+  SnackBarInfo({required this.key, required this.createdAt});
 
   @override
   bool operator ==(Object other) {
@@ -135,9 +129,6 @@ class SnackBarInfo {
 extension Cleaner on List<ToastBar> {
   /// Clean function to iterate over toastBars which are in context.
   List<ToastBar> clean() {
-    return where(
-      (element) => element.info.key.currentState != null,
-    ).toList();
+    return where((element) => element.info.key.currentState != null).toList();
   }
 }
-

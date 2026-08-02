@@ -84,10 +84,16 @@ class TopUpPage extends HookConsumerWidget {
       result.fold(
         onOk: (response) {
           if (response?.hasPaymentUrl ?? false) {
-            AppToast.info(context, message: 'جاري توجيهك إلى بوابة الدفع...');
+            context.router.push(
+              PaymentWebViewRoute(
+                url: response!.executePaymentResult.paymentUrl!,
+                depositId: paymentState.depositId!,
+                amount: displayAmount,
+              ),
+            );
           } else {
             AppToast.success(context, message: 'تم الدفع بنجاح');
-          
+            context.router.maybePop();
           }
         },
         onErr: (message, _) {
@@ -151,13 +157,6 @@ class TopUpPage extends HookConsumerWidget {
                 icon: Icons.payment,
                 onPressed: _handleExecutePayment,
                 successMessage: 'تم الدفع بنجاح',
-                onSuccess: () {
-                  if (paymentState.hasPaymentUrl) {
-                    // TODO: Open WebView with payment URL
-                  } else {
-                    context.router.maybePop();
-                  }
-                },
               ),
               const SizedBox(height: 10),
               Center(

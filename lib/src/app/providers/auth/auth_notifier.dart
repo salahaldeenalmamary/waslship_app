@@ -32,6 +32,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
         refreshToken: refreshToken,
       );
     }
+    else{
+        state = state.copyWith(
+        status: AuthStatus.unauthenticated,
+        refreshToken: refreshToken,
+      );
+    }
   }
 
   Future<void> _saveTokens(String? accessToken, String? refreshToken) async {
