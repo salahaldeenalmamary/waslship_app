@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../imports/imports.dart';
 import '../dio_provider.dart';
 import '../../../data/repositories/auth/auth_repo.dart';
 import 'auth_notifier.dart';

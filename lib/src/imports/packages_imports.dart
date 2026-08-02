@@ -1,11 +1,11 @@
 export 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 export 'package:flutter_screenutil/flutter_screenutil.dart';
-export 'package:flutter_hooks/flutter_hooks.dart';
+
 export 'package:equatable/equatable.dart';
-export 'package:flutter_riverpod/flutter_riverpod.dart'
-    hide describeIdentity, shortHash;
-export 'package:hooks_riverpod/hooks_riverpod.dart'
-    hide describeIdentity, shortHash;
+export 'package:flutter_riverpod/flutter_riverpod.dart';
+export 'package:hooks_riverpod/hooks_riverpod.dart';
+export 'package:flutter_hooks/flutter_hooks.dart';
+export 'package:flutter_riverpod/legacy.dart';
 export 'package:auto_route/auto_route.dart'
     hide
         kCupertinoModalBarrierColor,

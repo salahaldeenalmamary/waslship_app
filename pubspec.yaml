@@ -24,8 +24,8 @@ dependencies:
   internet_connection_checker_plus: ^2.7.2
 
   # State Management
-  flutter_riverpod: ^2.6.1
-  flutter_hooks: ^0.21.3
+  flutter_riverpod: ^3.3.2
+  hooks_riverpod: ^3.3.2
 
   # Storage
   shared_preferences: ^2.5.3
@@ -55,7 +55,6 @@ dependencies:
 
   flutter_native_splash: ^2.4.6
   equatable: ^2.1.0
-  hooks_riverpod: ^2.6.1
 
 dev_dependencies:
   flutter_test:

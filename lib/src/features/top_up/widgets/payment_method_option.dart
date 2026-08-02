@@ -1,7 +1,8 @@
+// File: lib/features/payment/presentation/widgets/payment_method_option.dart
 
+import 'package:flutter/material.dart';
 
 import '../../../data/repositories/payment/payment_dtos.dart';
-import '../../../imports/imports.dart';
 
 class PaymentMethodOption extends StatelessWidget {
   final PaymentMethodDto method;
@@ -10,7 +11,8 @@ class PaymentMethodOption extends StatelessWidget {
   final ColorScheme colors;
   final TextTheme textTheme;
 
-  const PaymentMethodOption({super.key, 
+  const PaymentMethodOption({
+    super.key,
     required this.method,
     required this.selected,
     required this.onTap,
@@ -37,6 +39,33 @@ class PaymentMethodOption extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // Radio selection indicator (Left)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: selected ? colors.primary : colors.outlineVariant,
+                  width: 2,
+                ),
+              ),
+              child: selected
+                  ? Center(
+                      child: Container(
+                        width: 10,
+                        height: 10,
+                        decoration: BoxDecoration(
+                          color: colors.primary,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: 12),
+
             // Payment method image
             Container(
               width: 48,
@@ -61,6 +90,8 @@ class PaymentMethodOption extends StatelessWidget {
                   : Icon(Icons.credit_card, color: colors.primary, size: 26),
             ),
             const SizedBox(width: 12),
+
+            // Payment method info (Right)
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,38 +102,15 @@ class PaymentMethodOption extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    'رسوم الخدمة: ${method.serviceCharge.toStringAsFixed(2)} ${method.totalAmount.toStringAsFixed(2)}',
+                    'الإجمالي: ${method.totalAmount.toStringAsFixed(3)} ${method.currencyCode()}',
                     style: textTheme.bodySmall?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
                   ),
                 ],
               ),
-            ),
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 22,
-              height: 22,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: selected ? colors.primary : colors.outlineVariant,
-                  width: 2,
-                ),
-              ),
-              child: selected
-                  ? Center(
-                      child: Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: colors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    )
-                  : null,
             ),
           ],
         ),

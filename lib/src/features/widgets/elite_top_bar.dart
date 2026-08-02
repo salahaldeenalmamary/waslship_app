@@ -46,7 +46,7 @@ class EliteTopBar extends StatelessWidget implements PreferredSizeWidget {
           : null,
       title: Text(
         title,
-        style: textTheme.titleMedium?.copyWith(
+        style: textTheme.titleLarge?.copyWith(
           fontWeight: FontWeight.w700,
           color: colors.secondary,
         ),

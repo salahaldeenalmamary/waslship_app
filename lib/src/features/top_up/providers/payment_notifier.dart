@@ -1,6 +1,7 @@
-// File: lib/features/payment/providers/payment_notifier.dart
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:flutter_riverpod/experimental/mutation.dart';
+
 import '../../../data/repositories/payment/payment_dtos.dart';
 import '../../../data/repositories/payment/payment_repo.dart';
 import '../../../imports/imports.dart';
@@ -20,6 +21,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
   }
 
   void setCurrency(String currency) {
+    Mutation<void>;
     state = state.copyWith(currency: currency, errorMessage: null);
   }
 
@@ -28,11 +30,11 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
   // ============================================
 
   /// Initiate payment to get available payment methods
-  Future<Result<InitiatePaymentResponseDto>> initiatePayment(
+  Future<Result<InitiatePaymentResponseDto?>> initiatePayment(
     InitiatePaymentRequestDto request,
   ) async {
     if (state.amount <= 0) {
-      return Result.err('يرجى إدخال مبلغ صحيح');
+      return const Result.err('يرجى إدخال مبلغ صحيح');
     }
 
     state = state.copyWith(
@@ -48,8 +50,8 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
         state = state.copyWith(
           step: PaymentStep.methods,
           isLoading: false,
-          initiatedPayment: response,
-          availableMethods: response.initiatePaymentResult.availableMethods,
+          initiatedPayment: response.data,
+          availableMethods: response.data?.initiatePaymentResult.availableMethods??[],
           successMessage: 'تم تحميل طرق الدفع المتاحة',
         );
       },
@@ -62,7 +64,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   // ============================================
@@ -79,12 +81,10 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
   // ============================================
 
   /// Execute payment with selected method
-  Future<Result<ExecutePaymentResponseDto>> executePayment(
+  Future<Result<ExecutePaymentResponseDto?>> executePayment(
     ExecutePaymentRequestDto request,
   ) async {
-    if (state.selectedMethod == null) {
-      return Result.err('يرجى اختيار طريقة الدفع');
-    }
+  
 
     state = state.copyWith(
       step: PaymentStep.executing,
@@ -96,12 +96,12 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
 
     result.fold(
       onOk: (response) {
-        final hasUrl = response.hasPaymentUrl;
+        final hasUrl = response.data?.hasPaymentUrl??false;
         state = state.copyWith(
           step: hasUrl ? PaymentStep.paymentUrl : PaymentStep.completed,
           isLoading: false,
-          executionResult: response,
-          successMessage: response.executePaymentResult.message ?? 'تم إنشاء الفاتورة بنجاح',
+          executionResult: response.data,
+          successMessage: response.data?.executePaymentResult.message ?? 'تم إنشاء الفاتورة بنجاح',
         );
       },
       onErr: (message, cause) {
@@ -113,7 +113,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   // ============================================
@@ -121,7 +121,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
   // ============================================
 
   /// Verify payment after returning from payment gateway
-  Future<Result<VerifyPaymentResponseDto>> verifyPayment(
+  Future<Result<VerifyPaymentResponseDto?>> verifyPayment(
     VerifyPaymentRequestDto request,
   ) async {
     state = state.copyWith(
@@ -137,7 +137,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
         state = state.copyWith(
           step: PaymentStep.completed,
           isLoading: false,
-          verificationResult: response,
+          verificationResult: response.data,
           successMessage: 'تم تأكيد الدفع بنجاح',
         );
       },
@@ -150,7 +150,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   // ============================================

@@ -1,9 +1,3 @@
-// File: lib/features/payment/presentation/top_up_page.dart
-
-import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../data/repositories/payment/payment_dtos.dart';
 import '../../imports/imports.dart';
 import '../widgets/elite_top_bar.dart';
@@ -21,7 +15,6 @@ class TopUpPage extends HookConsumerWidget {
     final amount = useState(100.0);
     final customController = useTextEditingController();
     final selectedMethod = useState<PaymentMethodDto?>(null);
-    final saveCard = useState(false);
 
     // Payment state
     final paymentState = ref.watch(paymentNotifierProvider);
@@ -39,7 +32,7 @@ class TopUpPage extends HookConsumerWidget {
     // ============================================
     // Step 2: Initiate Payment
     // ============================================
-    Future<Result<InitiatePaymentResponseDto>> _handleInitiatePayment() async {
+    Future<Result<InitiatePaymentResponseDto?>> _handleInitiatePayment() async {
       if (!isValidAmount) {
         return const Result.err('المبلغ يجب أن يكون بين 10 و 10,000 ر.س');
       }
@@ -72,7 +65,7 @@ class TopUpPage extends HookConsumerWidget {
     // ============================================
     // Step 3: Execute Payment
     // ============================================
-    Future<Result<ExecutePaymentResponseDto>> _handleExecutePayment() async {
+    Future<Result<ExecutePaymentResponseDto?>> _handleExecutePayment() async {
       if (selectedMethod.value == null) {
         return const Result.err('يرجى اختيار وسيلة الدفع');
       }
@@ -90,12 +83,11 @@ class TopUpPage extends HookConsumerWidget {
 
       result.fold(
         onOk: (response) {
-          if (response.hasPaymentUrl) {
+          if (response?.hasPaymentUrl ?? false) {
             AppToast.info(context, message: 'جاري توجيهك إلى بوابة الدفع...');
-            // TODO: Open WebView with payment URL
           } else {
             AppToast.success(context, message: 'تم الدفع بنجاح');
-            context.router.maybePop();
+          
           }
         },
         onErr: (message, _) {
@@ -114,7 +106,7 @@ class TopUpPage extends HookConsumerWidget {
         onBack: () {
           if (step.value > 1) {
             step.value = step.value - 1;
-            // Go back to previous step
+
             if (step.value == 1) {
               paymentNotifier.resetPayment();
               selectedMethod.value = null;
@@ -124,18 +116,76 @@ class TopUpPage extends HookConsumerWidget {
           }
         },
       ),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.fromLTRB(
+          20,
+          20,
+          20,
+          MediaQuery.of(context).padding.bottom + 20,
+        ),
+        decoration: BoxDecoration(
+          color: colors.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (step.value == 1)
+              AsyncButton.primary(
+                label: 'المتابعة للدفع',
+                icon: Icons.chevron_left_rounded,
+                enabled: isValidAmount,
+                onPressed: _handleInitiatePayment,
+                showSuccessToast: false,
+              )
+            else if (step.value == 2 && paymentState.hasMethods) ...[
+              AsyncButton.primary(
+                label: 'الدفع الآن ${displayAmount.toStringAsFixed(2)} ر.س',
+                icon: Icons.payment,
+                onPressed: _handleExecutePayment,
+                successMessage: 'تم الدفع بنجاح',
+                onSuccess: () {
+                  if (paymentState.hasPaymentUrl) {
+                    // TODO: Open WebView with payment URL
+                  } else {
+                    context.router.maybePop();
+                  }
+                },
+              ),
+              const SizedBox(height: 10),
+              Center(
+                child: Text(
+                  'بالضغط على الدفع، أنت توافق على شروط وأحكام واصل شيب',
+                  style: textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            // Summary Card
-            _buildSummaryCard(
-              step: step.value,
-              displayAmount: displayAmount,
-              colors: colors,
-              textTheme: textTheme,
-            ),
+            if (step.value != 2)
+              _buildSummaryCard(
+                step: step.value,
+                displayAmount: displayAmount,
+                colors: colors,
+                textTheme: textTheme,
+              ),
             const SizedBox(height: 24),
 
             // ============================================
@@ -148,14 +198,6 @@ class TopUpPage extends HookConsumerWidget {
                 presets: presets,
                 colors: colors,
                 textTheme: textTheme,
-              ),
-              const SizedBox(height: 24),
-              AsyncButton.primary(
-                label: 'المتابعة للدفع',
-                icon: Icons.chevron_left_rounded,
-                enabled: isValidAmount,
-                onPressed: _handleInitiatePayment,
-                showSuccessToast: false,
               ),
             ]
             // ============================================
@@ -177,6 +219,7 @@ class TopUpPage extends HookConsumerWidget {
                     fontWeight: FontWeight.w700,
                     color: colors.primary,
                   ),
+                  textAlign: TextAlign.left,
                 ),
                 const SizedBox(height: 12),
                 ...paymentState.availableMethods.map((method) {
@@ -193,40 +236,6 @@ class TopUpPage extends HookConsumerWidget {
                 }),
                 const SizedBox(height: 16),
 
-                // Save card toggle
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: colors.surfaceContainerLow,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: colors.outlineVariant),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.bookmark_border_rounded,
-                        color: colors.secondary,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'حفظ البطاقة لاستخدامها لاحقاً',
-                          style: textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      Switch(
-                        value: saveCard.value,
-                        onChanged: (v) => saveCard.value = v,
-                        activeColor: colors.primary,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // Security badge
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -256,33 +265,6 @@ class TopUpPage extends HookConsumerWidget {
                         ),
                       ),
                     ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Pay Button
-                AsyncButton.primary(
-                  label: 'الدفع الآن ${displayAmount.toStringAsFixed(2)} ر.س',
-                  icon: Icons.payment,
-                  onPressed: _handleExecutePayment,
-
-                  successMessage: 'تم الدفع بنجاح',
-                  onSuccess: () {
-                    if (paymentState.hasPaymentUrl) {
-                      // TODO: Open WebView with payment URL
-                    } else {
-                      context.router.maybePop();
-                    }
-                  },
-                ),
-                const SizedBox(height: 10),
-                Center(
-                  child: Text(
-                    'بالضغط على الدفع، أنت توافق على شروط وأحكام واصل شيب',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                    textAlign: TextAlign.center,
                   ),
                 ),
               ] else ...[

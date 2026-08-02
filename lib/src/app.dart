@@ -23,7 +23,7 @@ class App extends StatelessWidget {
 
         localizationsDelegates: context.localizationDelegates,
         supportedLocales: context.supportedLocales,
-        locale: context.locale,
+        locale: Locale("ar"),
       ),
     );
   }

@@ -1,9 +1,8 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../data/network/network.dart';
 import '../../../data/repositories/address/address_repo.dart';
 import '../../../data/repositories/address/models/address_dtos.dart';
 import '../../../data/repositories/auth/models/auth_dtos.dart';
+import '../../../imports/imports.dart';
 import 'address_state.dart';
 
 class AddressNotifier extends StateNotifier<AddressState> {
@@ -18,7 +17,10 @@ class AddressNotifier extends StateNotifier<AddressState> {
 
     result.fold(
       onOk: (response) {
-        state = state.copyWith(isLoading: false, addresses: response.addresses);
+        state = state.copyWith(
+          isLoading: false,
+          addresses: response.data?.addresses ?? [],
+        );
       },
       onErr: (message, _) {
         state = state.copyWith(isLoading: false, errorMessage: message);
@@ -26,7 +28,7 @@ class AddressNotifier extends StateNotifier<AddressState> {
     );
   }
 
-  Future<Result<AddressResponseDto>> addAddress(
+  Future<Result<AddressResponseDto?>> addAddress(
     AddAddressRequestDto request,
   ) async {
     state = state.copyWith(isSaving: true, errorMessage: null);
@@ -35,7 +37,7 @@ class AddressNotifier extends StateNotifier<AddressState> {
 
     result.fold(
       onOk: (response) {
-        final newAddress = response;
+        final newAddress = response.data;
         if (newAddress != null) {
           state = state.copyWith(
             isSaving: false,
@@ -49,10 +51,10 @@ class AddressNotifier extends StateNotifier<AddressState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
-  Future<Result<AddressResponseDto>> updateAddress(
+  Future<Result<AddressResponseDto?>> updateAddress(
     int addressId,
     UpdateAddressRequestDto request,
   ) async {
@@ -62,7 +64,7 @@ class AddressNotifier extends StateNotifier<AddressState> {
 
     result.fold(
       onOk: (response) {
-        final updatedAddress = response;
+        final updatedAddress = response.data;
         if (updatedAddress != null) {
           final updatedList = state.addresses.map((addr) {
             return addr.id == addressId ? updatedAddress : addr;
@@ -80,10 +82,10 @@ class AddressNotifier extends StateNotifier<AddressState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
-  Future<Result<MessageResponseDto>> deleteAddress(int addressId) async {
+  Future<Result<MessageResponseDto?>> deleteAddress(int addressId) async {
     state = state.copyWith(isSaving: true, errorMessage: null);
 
     final result = await _addressRepo.deleteUserAddress(addressId);
@@ -103,10 +105,10 @@ class AddressNotifier extends StateNotifier<AddressState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
-  Future<Result<AddressResponseDto>> setDefaultAddress(int addressId) async {
+  Future<Result<AddressResponseDto?>> setDefaultAddress(int addressId) async {
     state = state.copyWith(isSaving: true, errorMessage: null);
 
     final result = await _addressRepo.setDefaultUserAddress(addressId);
@@ -128,7 +130,7 @@ class AddressNotifier extends StateNotifier<AddressState> {
       },
     );
 
-    return result;
+    return result.toDataResult();
   }
 
   void selectAddress(AddressResponseDto? address) {
