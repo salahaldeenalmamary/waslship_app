@@ -16,7 +16,6 @@ class AddressesPage extends HookConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
-    // Load addresses on mount
     useEffect(() {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         notifier.loadAddresses();
@@ -36,15 +35,15 @@ class AddressesPage extends HookConsumerWidget {
     );
 
     // Show error message
-    ref.listen<String?>(
-      addressNotifierProvider.select((s) => s.errorMessage),
-      (previous, next) {
-        if (next != null) {
-          AppToast.error(context, message: next);
-          notifier.clearError();
-        }
-      },
-    );
+    ref.listen<String?>(addressNotifierProvider.select((s) => s.errorMessage), (
+      previous,
+      next,
+    ) {
+      if (next != null) {
+        AppToast.error(context, message: next);
+        notifier.clearError();
+      }
+    });
 
     return Scaffold(
       backgroundColor: colors.surfaceContainer,

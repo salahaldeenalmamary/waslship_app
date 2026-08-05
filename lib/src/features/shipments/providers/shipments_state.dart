@@ -1,46 +1,46 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../data/repositories/shipments/shipment_dtos.dart';
 
 class ShipmentsState {
-  /// Main list — wraps loading / data / error in one field.
-  final AsyncValue<List<ShipmentDto>> shipments;
-
-  /// Separate flag for "load-more" so the existing list stays visible
-  /// while the next page is fetching.
   final bool isLoadingMore;
-
+  final AsyncValue<List<ShipmentDto>> shipments;
   final int currentPage;
   final bool hasNextPage;
-  final String? activeStatus; // null = all
+
+  final String? activeStatus;
   final String searchQuery;
 
   const ShipmentsState({
-    this.shipments = const AsyncValue.loading(),
     this.isLoadingMore = false,
+    this.shipments = const AsyncValue.loading(),
     this.currentPage = 1,
     this.hasNextPage = false,
+
     this.activeStatus,
     this.searchQuery = '',
   });
 
   ShipmentsState copyWith({
-    AsyncValue<List<ShipmentDto>>? shipments,
+    bool? isLoading,
     bool? isLoadingMore,
+    AsyncValue<List<ShipmentDto>>? shipments,
     int? currentPage,
     bool? hasNextPage,
+    String? errorMessage,
     String? activeStatus,
     String? searchQuery,
+    bool clearError = false,
     bool clearStatus = false,
   }) {
     return ShipmentsState(
-      shipments: shipments ?? this.shipments,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+      shipments: shipments ?? this.shipments,
       currentPage: currentPage ?? this.currentPage,
       hasNextPage: hasNextPage ?? this.hasNextPage,
+
       activeStatus: clearStatus ? null : (activeStatus ?? this.activeStatus),
       searchQuery: searchQuery ?? this.searchQuery,
     );
   }
-
-  List<ShipmentDto> get items => shipments.value ?? [];
 }
