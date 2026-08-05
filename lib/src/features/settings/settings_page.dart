@@ -4,16 +4,7 @@ import '../widgets/elite_top_bar.dart';
 
 @RoutePage(name: 'SettingsRoute')
 class SettingsPage extends HookConsumerWidget {
-  const SettingsPage({
-    super.key,
-    this.onAddresses,
-    this.onNotifications,
-    this.onLogout,
-  });
-
-  final VoidCallback? onAddresses;
-  final VoidCallback? onNotifications;
-  final VoidCallback? onLogout;
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -137,9 +128,10 @@ class SettingsPage extends HookConsumerWidget {
                     children: [
                       ListTile(
                         onTap: () {
-                          if (opt.id == 'locations') onAddresses?.call();
+                          if (opt.id == 'locations')
+                            context.router.push(const AddressesRoute());
                           if (opt.id == 'notifications')
-                            onNotifications?.call();
+                            context.router.push(NotificationsRoute());
                         },
                         leading: Container(
                           width: 40,

@@ -25,22 +25,26 @@ class AddressesPage extends HookConsumerWidget {
     }, []);
 
     // Show success message
-    useEffect(() {
-      if (state.successMessage != null) {
-        AppToast.success(context, message: state.successMessage!);
-        notifier.clearSuccessMessage();
-      }
-      return null;
-    }, [state.successMessage]);
+    ref.listen<String?>(
+      addressNotifierProvider.select((s) => s.successMessage),
+      (previous, next) {
+        if (next != null) {
+          AppToast.success(context, message: next);
+          notifier.clearSuccessMessage();
+        }
+      },
+    );
 
     // Show error message
-    useEffect(() {
-      if (state.errorMessage != null) {
-        AppToast.error(context, message: state.errorMessage!);
-        notifier.clearError();
-      }
-      return null;
-    }, [state.errorMessage]);
+    ref.listen<String?>(
+      addressNotifierProvider.select((s) => s.errorMessage),
+      (previous, next) {
+        if (next != null) {
+          AppToast.error(context, message: next);
+          notifier.clearError();
+        }
+      },
+    );
 
     return Scaffold(
       backgroundColor: colors.surfaceContainer,
