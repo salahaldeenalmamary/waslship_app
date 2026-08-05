@@ -1,4 +1,3 @@
-
 import '../../../app/providers/dio_provider.dart';
 import '../../../data/repositories/address/address_repo.dart';
 import '../../../imports/imports.dart';
@@ -13,7 +12,6 @@ final addressRepoProvider = Provider<AddressRepo>((ref) {
 
 // AddressNotifier provider
 final addressNotifierProvider =
-    StateNotifierProvider<AddressNotifier, AddressState>((ref) {
-      final addressRepo = ref.watch(addressRepoProvider);
-      return AddressNotifier(addressRepo);
-    });
+    NotifierProvider.autoDispose<AddressNotifier, AddressState>(
+      () => AddressNotifier(),
+    );

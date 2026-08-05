@@ -10,9 +10,6 @@ final authRepoProvider = Provider<AuthRepo>((ref) {
 });
 
 // AuthNotifier provider - THE MAIN PROVIDER
-final authNotifierProvider = StateNotifierProvider<AuthNotifier, AuthState>((
-  ref,
-) {
-  final authRepo = ref.watch(authRepoProvider);
-  return AuthNotifier(authRepo);
-});
+final authNotifierProvider = NotifierProvider<AuthNotifier, AuthState>(
+  () => AuthNotifier(),
+);

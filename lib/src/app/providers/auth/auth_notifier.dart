@@ -1,17 +1,20 @@
-
 import '../../../data/repositories/auth/auth_repo.dart';
 import '../../../data/repositories/auth/models/auth_dtos.dart';
 import '../../../imports/imports.dart';
+import 'auth_providers.dart';
 import 'auth_state.dart';
 
 const _accessTokenKey = 'ACCESS_TOKEN';
 const _refreshTokenKey = 'REFRESH_TOKEN';
 
-class AuthNotifier extends StateNotifier<AuthState> {
-  final AuthRepo _authRepo;
+class AuthNotifier extends Notifier<AuthState> {
+  late final AuthRepo _authRepo;
 
-  AuthNotifier(this._authRepo) : super(const AuthState()) {
+  @override
+  AuthState build() {
+    _authRepo = ref.read(authRepoProvider);
     _init();
+    return const AuthState();
   }
 
   Future<void> _init() async {
@@ -31,9 +34,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
         accessToken: accessToken,
         refreshToken: refreshToken,
       );
-    }
-    else{
-        state = state.copyWith(
+    } else {
+      state = state.copyWith(
         status: AuthStatus.unauthenticated,
         refreshToken: refreshToken,
       );
@@ -56,6 +58,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await secureStorage.delete(_refreshTokenKey);
   }
 
+  // ============================================
+  // Login
+  // ============================================
   Future<Result<LoginResponseDto?>> login(LoginRequestDto request) async {
     state = state.copyWith(status: AuthStatus.loading, errorMessage: null);
 
@@ -191,7 +196,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
       onOk: (response) {
         state = state.copyWith(
           status: AuthStatus.passwordResetSent,
-
           errorMessage: null,
           successMessage: 'تم إرسال رابط إعادة تعيين كلمة المرور',
         );
@@ -285,6 +289,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     return result.toDataResult();
   }
 
+  // ============================================
+  // Utility Methods
+  // ============================================
   void clearError() {
     state = state.copyWith(errorMessage: null);
   }

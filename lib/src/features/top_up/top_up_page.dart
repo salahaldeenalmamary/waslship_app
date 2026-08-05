@@ -1,7 +1,7 @@
 import '../../data/repositories/payment/payment_dtos.dart';
 import '../../imports/imports.dart';
 import '../widgets/elite_top_bar.dart';
-import 'providers/payment_providers.dart';
+import 'providers/payment_notifier.dart';
 import 'widgets/payment_method_option.dart';
 
 @RoutePage()

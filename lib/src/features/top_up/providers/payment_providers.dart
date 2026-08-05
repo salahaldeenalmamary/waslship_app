@@ -11,12 +11,3 @@ final paymentRepoProvider = Provider<PaymentRepo>((ref) {
   final dio = ref.watch(dioProvider);
   return PaymentRepo(dio);
 });
-
-// ============================================
-// Payment Notifier Provider (MAIN PROVIDER)
-// ============================================
-final paymentNotifierProvider =
-    StateNotifierProvider.autoDispose<PaymentNotifier, PaymentState>((ref) {
-  final paymentRepo = ref.watch(paymentRepoProvider);
-  return PaymentNotifier(paymentRepo);
-});

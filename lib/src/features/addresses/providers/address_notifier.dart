@@ -1,14 +1,18 @@
-
 import '../../../data/repositories/address/address_repo.dart';
 import '../../../data/repositories/address/models/address_dtos.dart';
 import '../../../data/repositories/auth/models/auth_dtos.dart';
 import '../../../imports/imports.dart';
+import 'address_providers.dart';
 import 'address_state.dart';
 
-class AddressNotifier extends StateNotifier<AddressState> {
-  final AddressRepo _addressRepo;
+class AddressNotifier extends Notifier<AddressState> {
+  late final AddressRepo _addressRepo;
 
-  AddressNotifier(this._addressRepo) : super(const AddressState());
+  @override
+  AddressState build() {
+    _addressRepo = ref.read(addressRepoProvider);
+    return const AddressState();
+  }
 
   Future<void> loadAddresses() async {
     state = state.copyWith(isLoading: true, errorMessage: null);

@@ -1,11 +1,16 @@
 import '../../../data/repositories/wallet/wallet_repo.dart';
 import '../../../imports/imports.dart';
+import 'wallet_providers.dart';
 import 'wallet_state.dart';
 
-class WalletNotifier extends StateNotifier<WalletState> {
-  final WalletRepo _repo;
+class WalletNotifier extends Notifier<WalletState> {
+  late final WalletRepo _repo;
 
-  WalletNotifier(this._repo) : super(const WalletState());
+  @override
+  WalletState build() {
+    _repo = ref.read(walletRepoProvider);
+    return const WalletState();
+  }
 
   // ── Dashboard ───────────────────────────────────────────────────
 

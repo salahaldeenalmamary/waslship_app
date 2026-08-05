@@ -10,7 +10,6 @@ final walletRepoProvider = Provider<WalletRepo>((ref) {
 });
 
 final walletNotifierProvider =
-    StateNotifierProvider<WalletNotifier, WalletState>((ref) {
-      final repo = ref.watch(walletRepoProvider);
-      return WalletNotifier(repo);
-    });
+    NotifierProvider.autoDispose<WalletNotifier, WalletState>(
+      () => WalletNotifier(),
+    );

@@ -1,16 +1,24 @@
-
-
 import 'package:flutter_riverpod/experimental/mutation.dart';
 
 import '../../../data/repositories/payment/payment_dtos.dart';
 import '../../../data/repositories/payment/payment_repo.dart';
 import '../../../imports/imports.dart';
+import 'payment_providers.dart';
 import 'payment_state.dart';
 
-class PaymentNotifier extends StateNotifier<PaymentState> {
-  final PaymentRepo _paymentRepo;
+// Provider definition
+final paymentNotifierProvider = NotifierProvider<PaymentNotifier, PaymentState>(
+  () => PaymentNotifier(),
+);
 
-  PaymentNotifier(this._paymentRepo) : super(const PaymentState());
+class PaymentNotifier extends Notifier<PaymentState> {
+  late final PaymentRepo _paymentRepo;
+
+  @override
+  PaymentState build() {
+    _paymentRepo = ref.watch(paymentRepoProvider);
+    return const PaymentState();
+  }
 
   // ============================================
   // Amount Management
@@ -21,7 +29,7 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
   }
 
   void setCurrency(String currency) {
-    Mutation<void>;
+    // Fixed: Removed Mutation<void>; - was incomplete code
     state = state.copyWith(currency: currency, errorMessage: null);
   }
 
@@ -51,7 +59,8 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
           step: PaymentStep.methods,
           isLoading: false,
           initiatedPayment: response.data,
-          availableMethods: response.data?.initiatePaymentResult.availableMethods??[],
+          availableMethods:
+              response.data?.initiatePaymentResult.availableMethods ?? [],
           successMessage: 'تم تحميل طرق الدفع المتاحة',
         );
       },
@@ -84,8 +93,6 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
   Future<Result<ExecutePaymentResponseDto?>> executePayment(
     ExecutePaymentRequestDto request,
   ) async {
-  
-
     state = state.copyWith(
       step: PaymentStep.executing,
       isLoading: true,
@@ -96,12 +103,14 @@ class PaymentNotifier extends StateNotifier<PaymentState> {
 
     result.fold(
       onOk: (response) {
-        final hasUrl = response.data?.hasPaymentUrl??false;
+        final hasUrl = response.data?.hasPaymentUrl ?? false;
         state = state.copyWith(
           step: hasUrl ? PaymentStep.paymentUrl : PaymentStep.completed,
           isLoading: false,
           executionResult: response.data,
-          successMessage: response.data?.executePaymentResult.message ?? 'تم إنشاء الفاتورة بنجاح',
+          successMessage:
+              response.data?.executePaymentResult.message ??
+              'تم إنشاء الفاتورة بنجاح',
         );
       },
       onErr: (message, cause) {
