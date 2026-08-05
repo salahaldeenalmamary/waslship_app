@@ -24,7 +24,7 @@ class AppShellPage extends StatelessWidget {
       child: AutoTabsScaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         routes: [
-          DashboardRoute(),
+          HomeRoute(),
           ShipmentsRoute(),
           const WalletRoute(),
           SettingsRoute(),

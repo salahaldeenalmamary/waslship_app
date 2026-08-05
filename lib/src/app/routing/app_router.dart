@@ -22,7 +22,7 @@ class AppRouter extends RootStackRouter {
     AutoRoute(
       page: AppShellRoute.page,
       children: [
-        AutoRoute(page: DashboardRoute.page, initial: true),
+        AutoRoute(page: HomeRoute.page, initial: true),
         AutoRoute(page: ShipmentsRoute.page),
         AutoRoute(page: WalletRoute.page),
         AutoRoute(page: SettingsRoute.page),

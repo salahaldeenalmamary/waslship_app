@@ -1,11 +1,9 @@
-import 'package:auto_route/auto_route.dart';
-import 'package:flutter/material.dart';
+import 'package:waslship/src/app/providers/auth/auth_providers.dart';
+import '../../imports/imports.dart';
 import '../widgets/elite_top_bar.dart';
 
-/// Elite settings page.
-/// Mirrors the Settings screen from waslship-elite.
 @RoutePage(name: 'SettingsRoute')
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends HookConsumerWidget {
   const SettingsPage({
     super.key,
     this.onAddresses,
@@ -18,7 +16,7 @@ class SettingsPage extends StatelessWidget {
   final VoidCallback? onLogout;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
@@ -57,7 +55,7 @@ class SettingsPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colors.surfaceContainer,
-      appBar: EliteTopBar(title: 'الإعدادات'),
+      appBar: const EliteTopBar(title: 'الإعدادات'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         child: Column(
@@ -187,7 +185,9 @@ class SettingsPage extends StatelessWidget {
               width: double.infinity,
               height: 54,
               child: ElevatedButton.icon(
-                onPressed: onLogout,
+                onPressed: () {
+                  ref.read(authNotifierProvider.notifier).logout();
+                },
                 icon: const Icon(Icons.logout_rounded),
                 label: const Text(
                   'تسجيل الخروج',

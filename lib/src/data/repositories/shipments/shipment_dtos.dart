@@ -108,9 +108,9 @@ class UpdateShipmentStatusRequest {
 class ShipmentDto {
   final String id;
   final String trackingNumber;
-  final int otoId;
-  final String carrierTrackingNumber;
-  final String carrierName;
+  final int? otoId;
+  final String? carrierTrackingNumber;
+  final String? carrierName;
   final String status;
   final String senderCity;
   final String recipientName;
@@ -119,12 +119,12 @@ class ShipmentDto {
   final double shippingCost;
   final double codAmount;
   final String? labelUrl;
-  final String createdAt;
+  final String? createdAt;
 
   const ShipmentDto({
     required this.id,
     required this.trackingNumber,
-    required this.otoId,
+    this.otoId,
     required this.carrierTrackingNumber,
     required this.carrierName,
     required this.status,
@@ -148,10 +148,7 @@ class ShipmentDetailsDto {
   final ShipmentDto local;
   final Map<String, dynamic>? oto;
 
-  const ShipmentDetailsDto({
-    required this.local,
-    this.oto,
-  });
+  const ShipmentDetailsDto({required this.local, this.oto});
 
   factory ShipmentDetailsDto.fromJson(Map<String, dynamic> json) =>
       _$ShipmentDetailsDtoFromJson(json);
@@ -162,7 +159,7 @@ class ShipmentDetailsDto {
 class ShipmentsSearchPageDto {
   final List<ShipmentDto> items;
   final int totalCount;
-  final int page;
+  final int pageNumber;
   final int pageSize;
   final int totalPages;
   final bool hasNextPage;
@@ -171,7 +168,7 @@ class ShipmentsSearchPageDto {
   const ShipmentsSearchPageDto({
     required this.items,
     required this.totalCount,
-    required this.page,
+    required this.pageNumber,
     required this.pageSize,
     required this.totalPages,
     required this.hasNextPage,

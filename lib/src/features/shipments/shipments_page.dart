@@ -1,79 +1,55 @@
-import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import '../../data/repositories/shipments/shipment_dtos.dart';
+import '../../imports/packages_imports.dart';
 import '../widgets/elite_top_bar.dart';
 import '../widgets/elite_shipment_card.dart';
 import '../widgets/elite_empty_state.dart';
+import 'providers/shipments_providers.dart';
+
+enum ShipmentTab {
+  all('الكل', null),
+  inTransit('قيد التوصيل', 'InTransit'),
+  delivered('تم التسليم', 'Delivered'),
+  pending('معلق', 'Pending'),
+  cancelled('ملغي', 'Cancelled');
+
+  const ShipmentTab(this.label, this.apiStatus);
+  final String label;
+  final String? apiStatus;
+}
 
 @RoutePage()
-class ShipmentsPage extends StatefulWidget {
+class ShipmentsPage extends HookConsumerWidget {
   const ShipmentsPage({super.key, this.onTrack});
 
   final VoidCallback? onTrack;
 
   @override
-  State<ShipmentsPage> createState() => _ShipmentsPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final searchController = useTextEditingController();
+    final scrollController = useScrollController();
 
-class _ShipmentsPageState extends State<ShipmentsPage> {
-  String _activeTab = 'الكل';
-  String _searchQuery = '';
-  final _searchController = TextEditingController();
-
-  static final _allShipments = [
-    const EliteShipmentData(
-      id: '#BL-99283',
-      date: '24 أكتوبر 2023',
-      status: 'تم التسليم',
-      customer: 'أحمد محمود الجوهري',
-      location: 'الرياض، حي النرجس',
-      count: 1,
-      statusType: EliteShipmentStatus.delivered,
-    ),
-    const EliteShipmentData(
-      id: '#BL-44821',
-      date: '25 أكتوبر 2023',
-      status: 'قيد التوصيل',
-      customer: 'شركة الحلول الرقمية',
-      location: 'جدة، طريق الملك',
-      count: 3,
-      statusType: EliteShipmentStatus.inTransit,
-    ),
-    const EliteShipmentData(
-      id: '#BL-22019',
-      date: '23 أكتوبر 2023',
-      status: 'مرتجع',
-      customer: 'سارة عبد العزيز',
-      location: 'الدمام، الكورنيش',
-      count: 1,
-      statusType: EliteShipmentStatus.returned,
-      errorReason: 'فشل الاستلام',
-    ),
-  ];
-
-  static const _tabs = ['الكل', 'قيد التوصيل', 'تم التسليم', 'مرتجع'];
-
-  List<EliteShipmentData> get _filtered {
-    return _allShipments.where((s) {
-      final matchesTab = _activeTab == 'الكل' || s.status == _activeTab;
-      final q = _searchQuery.toLowerCase();
-      final matchesSearch =
-          q.isEmpty ||
-          s.id.toLowerCase().contains(q) ||
-          s.customer.toLowerCase().contains(q);
-      return matchesTab && matchesSearch;
-    }).toList();
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final state = ref.watch(shipmentsNotifierProvider);
+    final notifier = ref.read(shipmentsNotifierProvider.notifier);
+
+    useEffect(() {
+      void onScroll() {
+        if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 200) {
+          ref.read(shipmentsNotifierProvider.notifier).loadShipments();
+        }
+      }
+
+      scrollController.addListener(onScroll);
+      return () => scrollController.removeListener(onScroll);
+    }, [scrollController]);
+
+    final activeTab = ShipmentTab.values.firstWhere(
+      (tab) => tab.apiStatus == state.activeStatus,
+      orElse: () => ShipmentTab.all,
+    );
 
     return Scaffold(
       backgroundColor: colors.surfaceContainer,
@@ -83,22 +59,23 @@ class _ShipmentsPageState extends State<ShipmentsPage> {
       ),
       body: Column(
         children: [
+          // ── Filters ────────────────────────────────────────────────
           Column(
             children: [
               const SizedBox(height: 12),
-              // Tab chips
+
               SizedBox(
                 height: 44,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   separatorBuilder: (_, __) => const SizedBox(width: 8),
-                  itemCount: _tabs.length,
+                  itemCount: ShipmentTab.values.length,
                   itemBuilder: (context, i) {
-                    final tab = _tabs[i];
-                    final active = _activeTab == tab;
+                    final tab = ShipmentTab.values[i];
+                    final active = activeTab == tab;
                     return GestureDetector(
-                      onTap: () => setState(() => _activeTab = tab),
+                      onTap: () => notifier.setStatusFilter(tab.apiStatus),
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         padding: const EdgeInsets.symmetric(
@@ -112,7 +89,7 @@ class _ShipmentsPageState extends State<ShipmentsPage> {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          tab,
+                          tab.label,
                           style: textTheme.labelMedium?.copyWith(
                             color: active
                                 ? colors.onPrimary
@@ -130,11 +107,11 @@ class _ShipmentsPageState extends State<ShipmentsPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
-                  controller: _searchController,
+                  controller: searchController,
                   textDirection: TextDirection.rtl,
-                  onChanged: (v) => setState(() => _searchQuery = v),
+                  onChanged: notifier.setSearchQuery,
                   decoration: InputDecoration(
-                    hintText: 'البحث برقم الشحنة أو اسم العميل...',
+                    hintText: 'البحث برقم التتبع...',
                     prefixIcon: const Icon(Icons.search_rounded),
                     filled: true,
                     fillColor: colors.surfaceContainerLow,
@@ -142,12 +119,12 @@ class _ShipmentsPageState extends State<ShipmentsPage> {
                       horizontal: 16,
                       vertical: 14,
                     ),
-                    suffixIcon: _searchQuery.isNotEmpty
+                    suffixIcon: state.searchQuery.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear_rounded),
                             onPressed: () {
-                              _searchController.clear();
-                              setState(() => _searchQuery = '');
+                              searchController.clear();
+                              notifier.setSearchQuery('');
                             },
                           )
                         : null,
@@ -159,30 +136,116 @@ class _ShipmentsPageState extends State<ShipmentsPage> {
             ],
           ),
 
+          // ── List / Loading / Error ──────────────────────────────────
           Expanded(
-            child: _filtered.isEmpty
-                ? EliteEmptyState(
-                    icon: Icons.inventory_2_outlined,
-                    title: 'لا توجد شحنات',
-                    description: _searchQuery.isNotEmpty
-                        ? 'لم يتم العثور على نتائج تطابق بحثك.'
-                        : 'لا يوجد لديك أي شحنات في هذه الفئة حالياً.',
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemCount: _filtered.length,
-                    itemBuilder: (context, i) => EliteShipmentCard(
-                      shipment: _filtered[i],
-                      onTrack: widget.onTrack,
+            child: state.shipments.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, _) => RefreshIndicator(
+                onRefresh: notifier.refresh,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: SizedBox(
+                    height: 400,
+                    child: EliteEmptyState(
+                      icon: Icons.error_outline,
+                      title: 'حدث خطأ',
+                      description: err.toString(),
                     ),
                   ),
+                ),
+              ),
+              data: (items) => items.isEmpty
+                  ? RefreshIndicator(
+                      onRefresh: notifier.refresh,
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: SizedBox(
+                          height: 400,
+                          child: EliteEmptyState(
+                            icon: Icons.inventory_2_outlined,
+                            title: 'لا توجد شحنات',
+                            description: state.searchQuery.isNotEmpty
+                                ? 'لم يتم العثور على نتائج تطابق بحثك.'
+                                : 'لا يوجد لديك أي شحنات في هذه الفئة حالياً.',
+                          ),
+                        ),
+                      ),
+                    )
+                  : RefreshIndicator(
+                      onRefresh: notifier.refresh,
+                      child: ListView.separated(
+                        controller: scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemCount: items.length + (state.isLoadingMore ? 1 : 0),
+                        itemBuilder: (context, i) {
+                          if (i == items.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+                          return EliteShipmentCard(
+                            shipment: _toCardData(items[i]),
+                            onTrack: onTrack,
+                          );
+                        },
+                      ),
+                    ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  /// Maps API [ShipmentDto] → [EliteShipmentData] for the card widget.
+  EliteShipmentData _toCardData(ShipmentDto dto) {
+    EliteShipmentStatus statusType;
+    switch (dto.status) {
+      case 'Delivered':
+        statusType = EliteShipmentStatus.delivered;
+      case 'InTransit':
+      case 'Shipped':
+        statusType = EliteShipmentStatus.inTransit;
+      case 'Failed':
+      case 'Cancelled':
+        statusType = EliteShipmentStatus.returned;
+      default:
+        statusType = EliteShipmentStatus.pending;
+    }
+
+    return EliteShipmentData(
+      id: dto.trackingNumber,
+      date: dto.createdAt ?? '',
+      status: _arabicStatus(dto.status),
+      customer: dto.recipientName,
+      location: '${dto.senderCity} ← ${dto.recipientCity}',
+      count: 1,
+      statusType: statusType,
+    );
+  }
+
+  String _arabicStatus(String status) {
+    switch (status) {
+      case 'Delivered':
+        return 'تم التسليم';
+      case 'InTransit':
+        return 'قيد التوصيل';
+      case 'Shipped':
+        return 'تم الشحن';
+      case 'Pending':
+        return 'معلق';
+      case 'Cancelled':
+        return 'ملغي';
+      case 'Failed':
+        return 'فشل';
+      default:
+        return status;
+    }
   }
 }

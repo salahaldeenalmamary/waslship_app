@@ -1,116 +1,168 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:waslship/src/app/extensions/widget_extension.dart';
 import '../widgets/elite_stat_card.dart';
 import '../widgets/elite_top_bar.dart';
+import 'providers/home_providers.dart';
 
 @RoutePage()
-class HomePage extends StatelessWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key, this.onViewMore});
 
   final VoidCallback? onViewMore;
 
   @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final homeState = ref.watch(homeNotifierProvider);
 
     return Scaffold(
       appBar: const EliteTopBar(title: 'واصل شيب إيليت'),
       backgroundColor: colors.surfaceContainer,
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Hero Card ──────────────────────────────────────────────
-            _HeroCard(colors: colors, textTheme: textTheme),
-            const SizedBox(height: 16),
+      body: RefreshIndicator(
+        onRefresh: () => ref.read(homeNotifierProvider.notifier).refresh(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Hero Card ──────────────────────────────────────────────
+              _HeroCard(
+                colors: colors,
+                textTheme: textTheme,
+                isLoading: homeState.overview.isLoading,
+                total: homeState.total,
+                inTransit: homeState.inTransit,
+              ),
+              const SizedBox(height: 16),
 
-            // ── Stats Grid ─────────────────────────────────────────────
-            const Row(
-              children: [
-                Expanded(
-                  child: EliteStatCard(
-                    title: 'الشحنات الأسبوعية',
-                    value: '150',
-                    icon: Icons.calendar_month_outlined,
-                  ),
+              // ── Error Banner ────────────────────────────────────────────
+              if (homeState.overview.hasError)
+                _ErrorBanner(
+                  message: homeState.overview.error?.toString() ?? 'حدث خطأ',
                 ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: EliteStatCard(
-                    title: 'تم تسليمها اليوم',
-                    value: '4',
-                    icon: Icons.check_circle_outline_rounded,
-                    iconColor: Color(0xFF10B981),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
 
-            // ── Chart Section ──────────────────────────────────────────
-            _ChartSection(colors: colors, textTheme: textTheme),
-            const SizedBox(height: 20),
-
-            // ── Recent Activity ────────────────────────────────────────
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'النشاط الأخير',
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: colors.primary,
-                  ),
-                ),
-                TextButton(
-                  onPressed: onViewMore,
-                  child: Text(
-                    'عرض الكل',
-                    style: textTheme.labelMedium?.copyWith(
-                      color: colors.primary,
-                      fontWeight: FontWeight.w700,
+              // ── Stats Grid ─────────────────────────────────────────────
+              Row(
+                children: [
+                  Expanded(
+                    child: EliteStatCard(
+                      title: 'إجمالي الشحنات',
+                      value: homeState.overview.isLoading
+                          ? '–'
+                          : '${homeState.total}',
+                      icon: Icons.inventory_2_outlined,
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            _ActivityItem(
-              icon: Icons.local_shipping_outlined,
-              iconBg: colors.primaryContainer,
-              iconColor: colors.primary,
-              title: 'شحنة #WS-8924',
-              subtitle: 'وصلت إلى مركز الفرز • 10:42 ص',
-              badge: 'قيد التوصيل',
-              badgeBg: colors.primary,
-              badgeFg: colors.onPrimary,
-            ),
-            const SizedBox(height: 10),
-            _ActivityItem(
-              icon: Icons.inventory_2_outlined,
-              iconBg: colors.surfaceContainerHighest,
-              iconColor: colors.onSurfaceVariant,
-              title: 'شحنة #WS-8919',
-              subtitle: 'تم استلام الطرد • أمس',
-              badge: 'معلق',
-              badgeBg: colors.surfaceContainerHighest,
-              badgeFg: colors.onSurfaceVariant,
-            ),
-            const SizedBox(height: 10),
-            _ActivityItem(
-              icon: Icons.workspace_premium_outlined,
-              iconBg: const Color(0xFF10B981).withValues(alpha: 0.1),
-              iconColor: const Color(0xFF10B981),
-              title: 'تم تجديد العقد',
-              subtitle: 'توقيع اتفاقية النخبة السنوية • 24 أكتوبر',
-              trailingIcon: Icons.check_circle_rounded,
-              trailingColor: const Color(0xFF10B981),
-            ),
-            const SizedBox(height: 24),
-          ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: EliteStatCard(
+                      title: 'تم التسليم',
+                      value: homeState.overview.isLoading
+                          ? '–'
+                          : '${homeState.delivered}',
+                      icon: Icons.check_circle_outline_rounded,
+                      iconColor: const Color(0xFF10B981),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: EliteStatCard(
+                      title: 'قيد التوصيل',
+                      value: homeState.overview.isLoading
+                          ? '–'
+                          : '${homeState.inTransit}',
+                      icon: Icons.local_shipping_outlined,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: EliteStatCard(
+                      title: 'معلق',
+                      value: homeState.overview.isLoading
+                          ? '–'
+                          : '${homeState.pending}',
+                      icon: Icons.hourglass_empty_rounded,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // ── Chart Section ──────────────────────────────────────────
+              _ChartSection(colors: colors, textTheme: textTheme),
+              const SizedBox(height: 20),
+
+              // ── Recent Activity ────────────────────────────────────────
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'النشاط الأخير',
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: colors.primary,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: widget.onViewMore,
+                    child: Text(
+                      'عرض الكل',
+                      style: textTheme.labelMedium?.copyWith(
+                        color: colors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              _ActivityItem(
+                icon: Icons.local_shipping_outlined,
+                iconBg: colors.primaryContainer,
+                iconColor: colors.primary,
+                title: 'شحنة #WS-8924',
+                subtitle: 'وصلت إلى مركز الفرز • 10:42 ص',
+                badge: 'قيد التوصيل',
+                badgeBg: colors.primary,
+                badgeFg: colors.onPrimary,
+              ),
+              const SizedBox(height: 10),
+              _ActivityItem(
+                icon: Icons.inventory_2_outlined,
+                iconBg: colors.surfaceContainerHighest,
+                iconColor: colors.onSurfaceVariant,
+                title: 'شحنة #WS-8919',
+                subtitle: 'تم استلام الطرد • أمس',
+                badge: 'معلق',
+                badgeBg: colors.surfaceContainerHighest,
+                badgeFg: colors.onSurfaceVariant,
+              ),
+              const SizedBox(height: 10),
+              _ActivityItem(
+                icon: Icons.workspace_premium_outlined,
+                iconBg: const Color(0xFF10B981).withValues(alpha: 0.1),
+                iconColor: const Color(0xFF10B981),
+                title: 'تم تجديد العقد',
+                subtitle: 'توقيع اتفاقية النخبة السنوية • 24 أكتوبر',
+                trailingIcon: Icons.check_circle_rounded,
+                trailingColor: const Color(0xFF10B981),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
@@ -119,11 +171,51 @@ class HomePage extends StatelessWidget {
 
 // ── Internal Widgets ──────────────────────────────────────────────────────────
 
+class _ErrorBanner extends StatelessWidget {
+  const _ErrorBanner({required this.message});
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: colors.errorContainer,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline, color: colors.onErrorContainer, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(color: colors.onErrorContainer, fontSize: 13),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _HeroCard extends StatelessWidget {
-  const _HeroCard({required this.colors, required this.textTheme});
+  const _HeroCard({
+    required this.colors,
+    required this.textTheme,
+    required this.isLoading,
+    required this.total,
+    required this.inTransit,
+  });
 
   final ColorScheme colors;
   final TextTheme textTheme;
+  final bool isLoading;
+  final int total;
+  final int inTransit;
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +249,7 @@ class _HeroCard extends StatelessWidget {
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        '24',
+                        isLoading ? '–' : '$total',
                         style: textTheme.displaySmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
@@ -201,7 +293,7 @@ class _HeroCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '12 طرداً',
+                    isLoading ? '–' : '$inTransit طرداً',
                     style: textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
