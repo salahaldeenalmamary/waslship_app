@@ -1,5 +1,3 @@
-import 'package:flutter_riverpod/experimental/mutation.dart';
-
 import '../../../data/repositories/payment/payment_dtos.dart';
 import '../../../data/repositories/payment/payment_repo.dart';
 import '../../../imports/imports.dart';
@@ -16,7 +14,7 @@ class PaymentNotifier extends Notifier<PaymentState> {
 
   @override
   PaymentState build() {
-    _paymentRepo = ref.watch(paymentRepoProvider);
+    _paymentRepo = ref.read(paymentRepoProvider);
     return const PaymentState();
   }
 

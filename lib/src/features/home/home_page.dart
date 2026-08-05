@@ -5,8 +5,8 @@ import '../widgets/elite_stat_card.dart';
 import '../widgets/elite_top_bar.dart';
 
 @RoutePage()
-class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key, this.onViewMore});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key, this.onViewMore});
 
   final VoidCallback? onViewMore;
 
