@@ -16,7 +16,8 @@ class CreateOrderRequest {
   final double amount;
   final double codAmount;
   final String currency;
-  final List<ShipmentItemDto> items;
+  final String? itemDescription;
+  final List<ShipmentItemDto>? items;
 
   const CreateOrderRequest({
     required this.senderAddressId,
@@ -30,7 +31,8 @@ class CreateOrderRequest {
     required this.amount,
     required this.codAmount,
     required this.currency,
-    required this.items,
+    this.itemDescription,
+    this.items,
   });
 
   factory CreateOrderRequest.fromJson(Map<String, dynamic> json) =>
@@ -42,20 +44,26 @@ class CreateOrderRequest {
 class BulkCreateOrderItemRequest {
   final String senderAddressId;
   final String recipientAddressId;
+  final int deliveryOptionId;
   final double weight;
   final double shippingCost;
   final double amount;
   final double codAmount;
-  final List<ShipmentItemDto> items;
+  final String currency;
+  final String? itemDescription;
+  final List<ShipmentItemDto>? items;
 
   const BulkCreateOrderItemRequest({
     required this.senderAddressId,
     required this.recipientAddressId,
+    required this.deliveryOptionId,
     required this.weight,
     required this.shippingCost,
     required this.amount,
     required this.codAmount,
-    required this.items,
+    required this.currency,
+    this.itemDescription,
+    this.items,
   });
 
   factory BulkCreateOrderItemRequest.fromJson(Map<String, dynamic> json) =>
@@ -104,4 +112,49 @@ class BulkCreateOrdersResultDto {
   factory BulkCreateOrdersResultDto.fromJson(Map<String, dynamic> json) =>
       _$BulkCreateOrdersResultDtoFromJson(json);
   Map<String, dynamic> toJson() => _$BulkCreateOrdersResultDtoToJson(this);
+}
+
+// ─── Trigger Shipment ─────────────────────────────────────────────────────────
+
+@JsonSerializable()
+class TriggerShipmentRequest {
+  final String orderId;
+  final String deliveryOptionId;
+
+  const TriggerShipmentRequest({
+    required this.orderId,
+    required this.deliveryOptionId,
+  });
+
+  factory TriggerShipmentRequest.fromJson(Map<String, dynamic> json) =>
+      _$TriggerShipmentRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$TriggerShipmentRequestToJson(this);
+}
+
+// ─── Update Order ─────────────────────────────────────────────────────────────
+
+@JsonSerializable()
+class UpdateOrderRequest {
+  final double? amount;
+  final String? pickupLocationCode;
+
+  const UpdateOrderRequest({this.amount, this.pickupLocationCode});
+
+  factory UpdateOrderRequest.fromJson(Map<String, dynamic> json) =>
+      _$UpdateOrderRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$UpdateOrderRequestToJson(this);
+}
+
+// ─── Update Order Status ──────────────────────────────────────────────────────
+
+@JsonSerializable()
+class UpdateOrderStatusRequest {
+  final String status;
+  final String? reason;
+
+  const UpdateOrderStatusRequest({required this.status, this.reason});
+
+  factory UpdateOrderStatusRequest.fromJson(Map<String, dynamic> json) =>
+      _$UpdateOrderStatusRequestFromJson(json);
+  Map<String, dynamic> toJson() => _$UpdateOrderStatusRequestToJson(this);
 }

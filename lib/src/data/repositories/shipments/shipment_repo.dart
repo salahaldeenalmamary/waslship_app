@@ -10,24 +10,48 @@ part 'shipment_repo.g.dart';
 abstract class ShipmentRepo {
   factory ShipmentRepo(Dio dio, {String baseUrl}) = _ShipmentRepo;
 
-  @PUT('/v1/shipments/{id}')
-  Future<Result<ApiResponse<ShipmentDto>>> updateShipment(
-    @Path('id') String id,
-    @Body() UpdateShipmentRequest request,
+  // ─── Orders ───────────────────────────────────────────────────────────────
+
+  /// Creates a new shipping order with address enrichment.
+  @POST('/api/v1/shipments/orders')
+  Future<Result<ApiResponse<OrderResultDto>>> createOrder(
+    @Body() CreateOrderRequest request,
   );
 
-  @PATCH('/v1/shipments/{id}/status')
-  Future<Result<ApiResponse<ShipmentDto>>> updateShipmentStatus(
-    @Path('id') String id,
-    @Body() UpdateShipmentStatusRequest request,
+  /// Creates multiple orders in a single request.
+  @POST('/api/v1/shipments/orders/bulk')
+  Future<Result<ApiResponse<BulkCreateOrdersResultDto>>> bulkCreateOrders(
+    @Body() BulkCreateOrdersRequest request,
   );
 
-  @GET('/v1/shipments/{id}')
-  Future<Result<ApiResponse<ShipmentDetailsDto>>> getShipment(
-    @Path('id') String id,
+  /// Updates order details on OTO.
+  @PUT('/api/v1/shipments/orders/{orderId}')
+  Future<Result<ApiResponse<dynamic>>> updateOrder(
+    @Path('orderId') String orderId,
+    @Body() UpdateOrderRequest request,
   );
 
-  @GET('/v1/shipments/search')
+  /// Updates the status of an existing order.
+  @PATCH('/api/v1/shipments/orders/{orderId}/status')
+  Future<Result<ApiResponse<dynamic>>> updateOrderStatus(
+    @Path('orderId') String orderId,
+    @Body() UpdateOrderStatusRequest request,
+  );
+
+  // ─── Shipments ────────────────────────────────────────────────────────────
+
+  /// Triggers shipment generation for an existing OTO order.
+  @POST('/api/v1/shipments')
+  Future<Result<ApiResponse<dynamic>>> createShipment(
+    @Body() TriggerShipmentRequest request,
+  );
+
+  /// Retrieves all shipments belonging to the authenticated merchant.
+  @GET('/api/v1/shipments')
+  Future<Result<ApiResponse<List<ShipmentDto>>>> listShipments();
+
+  /// Searches shipments with filter query parameters and pagination.
+  @GET('/api/v1/shipments/search')
   Future<Result<ApiResponse<ShipmentsSearchPageDto>>> searchShipments({
     @Query('trackingNumber') String? trackingNumber,
     @Query('status') String? status,
@@ -35,16 +59,38 @@ abstract class ShipmentRepo {
     @Query('pageSize') int pageSize = 20,
   });
 
-  @POST('/v1/shipments/{id}/cancel')
-  Future<Result<ApiResponse<dynamic>>> cancelShipment(@Path('id') String id);
-
-  @POST('/v1/orders')
-  Future<Result<ApiResponse<OrderResultDto>>> createOrder(
-    @Body() CreateOrderRequest request,
+  /// Retrieves detailed information for a specific shipment.
+  @GET('/api/v1/shipments/{id}')
+  Future<Result<ApiResponse<ShipmentDetailsDto>>> getShipment(
+    @Path('id') String id,
   );
 
-  @POST('/v1/orders/bulk')
-  Future<Result<ApiResponse<BulkCreateOrdersResultDto>>> bulkCreateOrders(
-    @Body() BulkCreateOrdersRequest request,
+  /// Modifies local shipment information.
+  @PUT('/api/v1/shipments/{id}')
+  Future<Result<ApiResponse<dynamic>>> updateShipment(
+    @Path('id') String id,
+    @Body() UpdateShipmentRequest request,
   );
+
+  /// Updates internal shipment status.
+  @PATCH('/api/v1/shipments/{id}/status')
+  Future<Result<ApiResponse<dynamic>>> updateShipmentStatus(
+    @Path('id') String id,
+    @Body() UpdateShipmentStatusRequest request,
+  );
+
+  /// Puts a shipment on hold.
+  @POST('/api/v1/shipments/{id}/hold')
+  Future<Result<ApiResponse<dynamic>>> holdShipment(@Path('id') String id);
+
+  /// Releases an on-hold shipment.
+  @POST('/api/v1/shipments/{id}/unhold')
+  Future<Result<ApiResponse<dynamic>>> unholdShipment(@Path('id') String id);
+
+  /// Cancels an active shipment/order on OTO and local database.
+  @POST('/api/v1/shipments/{orderId}/cancel')
+  Future<Result<ApiResponse<dynamic>>> cancelShipment(
+    @Path('orderId') String orderId, {
+    @Query('shipmentId') String? shipmentId,
+  });
 }
